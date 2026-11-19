@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "QA Companion",
+  "version": "0.3.0",
+  "description": "כלי עזר לבודקי QA: סריקה, הקלטה, בדיקות שדה, סיכום תקלות, נגישות והשוואה לעיצוב",
+  "permissions": ["activeTab", "scripting", "storage", "webRequest"],
+  "host_permissions": ["<all_urls>", "https://api.figma.com/*", "https://*.figma.com/*"],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_popup": "popup.html", "default_title": "QA Companion" },
+  "content_scripts": [
+    { "matches": ["<all_urls>"], "js": ["hooks.js"], "world": "MAIN", "run_at": "document_start" },
+    { "matches": ["<all_urls>"], "js": ["mask.js", "content.js"], "run_at": "document_start" }
+  ],
+  "web_accessible_resources": [
+    { "resources": ["demo.html", "guide.html"], "matches": ["<all_urls>"] }
+  ]
+}
