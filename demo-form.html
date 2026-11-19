@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מערכת בקשות מקוונת · סביבת בדיקות</title>
+<style>
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; font-family: system-ui, "Segoe UI", Arial, sans-serif; background: #eef1f6; color: #1d2330; }
+  .ribbon { background: repeating-linear-gradient(45deg, #ffcf3f, #ffcf3f 12px, #1d2330 12px, #1d2330 24px); height: 6px; }
+  .topbar { display: flex; align-items: center; gap: 12px; background: #fff; padding: 12px 20px; border-bottom: 1px solid #dde2ea; }
+  .logo { width: 34px; height: 34px; }
+  .title { font-size: 20px; font-weight: 800; }
+  .env { margin-right: auto; background: #1d2330; color: #ffcf3f; font-weight: 800; font-size: 12px; padding: 3px 10px; border-radius: 99px; }
+  .stepper { display: flex; gap: 8px; justify-content: center; margin: 18px 0 0; }
+  .stepper span { background: #fff; border: 1px solid #d5dbe5; color: #6b7385; padding: 5px 14px; border-radius: 99px; font-size: 14px; }
+  .stepper span.on { background: #2457d6; border-color: #2457d6; color: #fff; }
+  main { max-width: 640px; margin: 16px auto 30px; background: #fff; border-radius: 14px; box-shadow: 0 6px 24px #1d233014; padding: 22px 26px; }
+  h2 { margin: 0 0 14px; font-size: 21px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+  .field label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .field input { width: 100%; padding: 9px 10px; border: 1px solid #c8cfdb; border-radius: 8px; font-size: 15px; font-family: inherit; }
+  .field input.invalid { border-color: #d63b3b; background: #fff5f5; }
+  .wide { grid-column: 1 / -1; }
+  .check { display: flex; gap: 8px; align-items: center; font-size: 14px; margin-top: 14px; }
+  .fine { font-size: 10px; color: #8a92a3; margin: 10px 0 0; }
+  .err { margin-top: 12px; background: #fde8e8; color: #9b1c1c; border-radius: 8px; padding: 9px 12px; font-size: 14px; }
+  .actions { display: flex; gap: 10px; align-items: center; margin-top: 18px; }
+  button { font-family: inherit; font-size: 15px; border-radius: 8px; padding: 9px 18px; cursor: pointer; border: 1px solid #c8cfdb; background: #fff; }
+  button.primary { background: #2457d6; border-color: #2457d6; color: #fff; font-weight: 700; }
+  button.narrow { width: 66px; padding: 9px 6px; overflow: hidden; white-space: nowrap; }
+  button.icon { width: 22px; height: 22px; padding: 2px; margin-right: auto; display: grid; place-items: center; border: none; background: transparent; }
+  .toast { margin-top: 12px; font-size: 14px; color: #1e7b3a; }
+  .success { width: 64px; height: 64px; border-radius: 50%; background: #1e7b3a; color: #fff; font-size: 34px; display: grid; place-items: center; margin: 6px auto 14px; }
+  #step3 { text-align: center; }
+  footer { text-align: center; color: #8a92a3; font-size: 13px; padding-bottom: 24px; }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="ribbon"></div>
+<div class="topbar">
+  <img src="assets/logo.png" class="logo">
+  <div class="title">מערכת בקשות מקוונת</div>
+  <span class="env">TEST</span>
+</div>
+
+<div class="stepper" id="stepper">
+  <span class="on">1 · פרטים</span><span>2 · אימות</span><span>3 · סיום</span>
+</div>
+
+<main>
+  <section id="step1">
+    <h2>פרטים אישיים</h2>
+    <form id="form1" novalidate>
+      <div class="grid">
+        <div class="field"><label for="firstName">שם פרטי *</label><input id="firstName" name="firstName" required></div>
+        <div class="field"><label for="lastName">שם משפחה *</label><input id="lastName" name="lastName" required maxlength="30"></div>
+        <div class="field wide"><label for="address">כתובת</label><input id="address" name="address"></div>
+        <div class="field"><label for="email">מייל</label><input id="email" name="email" type="email"></div>
+        <div class="field"><label for="age">גיל</label><input id="age" name="age" type="number" min="18" max="120"></div>
+        <div class="field"><label for="birthDate">תאריך לידה</label><input id="birthDate" name="birthDate" type="date"></div>
+        <div class="field"><label for="phone">טלפון</label><input id="phone" name="phone" type="tel" pattern="0\d{8,9}"></div>
+        <div class="field"><input id="zip" name="zip" placeholder="מיקוד"></div>
+      </div>
+      <label class="check"><input type="checkbox" id="terms" name="terms" required> אני מאשר/ת את <a href="#">תנאי השימוש</a></label>
+      <p class="fine">* שדות חובה</p>
+      <div class="err" role="alert" id="err1" hidden></div>
+      <div class="actions">
+        <button type="submit" class="primary">הבא</button>
+        <button type="button" class="narrow" id="saveDraft">שמור כטיוטה</button>
+        <button type="button" class="icon" id="delDraft"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9b1c1c" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+      </div>
+      <div class="toast" id="toast1" hidden></div>
+    </form>
+  </section>
+
+  <section id="step2" hidden>
+    <h2>אימות SMS</h2>
+    <p>שלחנו קוד בן 6 ספרות לטלפון שהזנת.</p>
+    <form id="form2" novalidate>
+      <div class="field"><label for="smsCode">קוד אימות</label><input id="smsCode" name="smsCode" inputmode="numeric" maxlength="6" required pattern="\d{6}"></div>
+      <p class="fine">בסביבת הבדיקות הקוד הוא 123456</p>
+      <div class="err" role="alert" id="err2" hidden></div>
+      <div class="actions">
+        <button type="submit" class="primary">אמת</button>
+        <button type="button" id="resend">שלח שוב קוד</button>
+        <button type="button" id="back">חזור</button>
+      </div>
+      <div class="toast" id="toast2" hidden></div>
+    </form>
+  </section>
+
+  <section id="step3" hidden>
+    <div class="success">✓</div>
+    <h2>הבקשה נקלטה בהצלחה</h2>
+    <p>מספר אסמכתא: <b id="ref">QA-2026-0042</b></p>
+  </section>
+</main>
+
+<footer>סביבת בדיקות · כל הנתונים בדף הם נתוני דמו</footer>
+
+<script>
+/* ===== שרת מדומה: כל קריאה ל-/api/ נענית מכאן, בלי שרת אמיתי ===== */
+(() => {
+  const realFetch = window.fetch.bind(window);
+  const json = (obj, status = 200) => ({ body: JSON.stringify(obj), status, type: 'application/json' });
+  const LOGS = [
+    '2026-11-19 07:41:02.114 INFO  [gateway]       corr=a1f3 GET /api/health 200 118ms',
+    '2026-11-19 07:41:03.520 INFO  [auth-service]  corr=b7c0 token issued user=1001',
+    '2026-11-19 07:41:05.002 INFO  [gateway]       corr=c2d9 GET /api/user/me 200 176ms',
+    '2026-11-19 07:41:08.931 WARN  [auth-service]  corr=b7c0 token expires in 120s',
+    '2026-11-19 07:41:11.407 INFO  [gateway]       corr=d4e1 GET /api/cities 200 1402ms',
+    '2026-11-19 07:41:11.409 WARN  [cities-service] corr=d4e1 slow query 1390ms (limit 1000ms)',
+    '2026-11-19 07:41:12.230 ERROR [orders-service] corr=c7f2 DB timeout after 3000ms (pool exhausted)',
+    '2026-11-19 07:41:12.231 ERROR [gateway]       corr=c7f2 GET /api/orders 500 3004ms',
+    '2026-11-19 07:41:12.240 ERROR [orders-service] corr=c7f2 retry 1 failed: DB timeout',
+    '2026-11-19 07:41:14.118 INFO  [gateway]       corr=e9a0 POST /api/applications 201 212ms',
+    '2026-11-19 07:41:15.877 INFO  [sms-service]   corr=e9a0 code sent to 05*******67',
+    '2026-11-19 07:41:19.302 ERROR [orders-service] corr=f013 DB timeout after 3000ms (pool exhausted)',
+    '2026-11-19 07:41:19.305 ERROR [gateway]       corr=f013 GET /api/orders 500 3007ms',
+    '2026-11-19 07:41:21.660 INFO  [sms-service]   corr=e9a0 code verified',
+    '2026-11-19 07:41:22.014 WARN  [orders-service] corr=-    connection pool at 100% (20/20)',
+    '2026-11-19 07:41:25.440 ERROR [notify-service] corr=e9a0 email template "approved" not found',
+    '2026-11-19 07:41:26.001 INFO  [gateway]       corr=a8b2 GET /api/health 200 121ms',
+    '2026-11-19 07:41:29.774 ERROR [orders-service] corr=a9d6 DB timeout after 3000ms (pool exhausted)',
+    '2026-11-19 07:41:29.776 ERROR [gateway]       corr=a9d6 GET /api/orders 500 3002ms',
+    '2026-11-19 07:41:31.090 INFO  [gateway]       corr=b0c1 GET /api/user/me 200 181ms'
+  ].join('\n');
+  const SPEC = {
+    openapi: '3.0.0',
+    info: { title: 'מערכת בקשות · API לבדיקות', version: '1.4.0' },
+    servers: [{ url: '' }],
+    paths: {
+      '/api/health': { get: { summary: 'בדיקת חיים' } },
+      '/api/user/me': { get: { summary: 'המשתמש המחובר' } },
+      '/api/user/{id}': { get: { summary: 'משתמש לפי מזהה' } },
+      '/api/cities': { get: { summary: 'רשימת ערים' } },
+      '/api/orders': { get: { summary: 'הזמנות' } },
+      '/api/applications': { post: { summary: 'יצירת בקשה' } },
+      '/api/sms/verify': { post: { summary: 'אימות קוד SMS' } }
+    }
+  };
+  const routes = {
+    'GET openapi.json': () => [json(SPEC), 60],
+    'GET health': () => [json({ status: 'UP' }), 120],
+    'GET user/me': () => [json({ id: 1001, name: 'ישראל בדיקה' }), 180],
+    'GET cities': () => [json(['ירושלים', 'תל אביב', 'חיפה', 'באר שבע']), 1400],
+    'GET orders': () => [json({ error: 'Internal Server Error', corr: 'c7f2' }, 500), 300],
+    'GET logs': () => [{ body: LOGS, status: 200, type: 'text/plain' }, 90],
+    'POST applications': () => [json({ id: 'APP-0042' }, 201), 200],
+    'POST sms/verify': (body) => {
+      let code = '';
+      try { code = JSON.parse(body || '{}').code; } catch (e) { /* גוף לא תקין */ }
+      return [code === '123456' ? json({ ok: true }) : json({ ok: false, error: 'קוד שגוי' }, 400), 250];
+    }
+  };
+  window.fetch = async (input, init = {}) => {
+    const url = new URL(typeof input === 'string' ? input : input.url, document.baseURI);
+    const i = url.pathname.indexOf('/api/');
+    if (i === -1) return realFetch(input, init);
+    const method = (init.method || 'GET').toUpperCase();
+    const key = method + ' ' + url.pathname.slice(i + 5);
+    const handler = routes[key];
+    const [res, delay] = handler ? handler(init.body) : [json({ error: 'Not Found' }, 404), 50];
+    await new Promise((r) => setTimeout(r, delay));
+    return new Response(res.body, { status: res.status, headers: { 'Content-Type': res.type } });
+  };
+})();
+
+/* ===== התנהגות הטופס ===== */
+const $ = (s) => document.querySelector(s);
+const stepper = [...document.querySelectorAll('#stepper span')];
+
+function goTo(n) {
+  ['#step1', '#step2', '#step3'].forEach((s, i) => { $(s).hidden = i !== n - 1; });
+  stepper.forEach((s, i) => s.classList.toggle('on', i === n - 1));
+}
+
+function validate(form, errBox) {
+  const bad = [...form.elements].filter((el) => el.willValidate && !el.checkValidity());
+  [...form.elements].forEach((el) => el.classList && el.classList.toggle('invalid', bad.includes(el)));
+  errBox.hidden = bad.length === 0;
+  errBox.textContent = bad.length ? 'יש לתקן ' + bad.length + ' שדות לפני שממשיכים' : '';
+  return bad.length === 0;
+}
+
+$('#form1').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!validate(e.target, $('#err1'))) return;
+  await fetch('/api/applications', { method: 'POST', body: JSON.stringify({ name: $('#firstName').value }) });
+  goTo(2);
+  $('#smsCode').focus();
+});
+
+$('#saveDraft').addEventListener('click', () => {
+  $('#toast1').hidden = false;
+  $('#toast1').textContent = 'הטיוטה נשמרה ✓';
+});
+
+$('#delDraft').addEventListener('click', () => {
+  $('#form1').reset();
+  $('#toast1').hidden = false;
+  $('#toast1').textContent = 'הטיוטה נמחקה';
+});
+
+$('#form2').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!validate(e.target, $('#err2'))) return;
+  const r = await fetch('/api/sms/verify', { method: 'POST', body: JSON.stringify({ code: $('#smsCode').value }) });
+  if (!r.ok) {
+    $('#err2').hidden = false;
+    $('#err2').textContent = 'הקוד שגוי, נסו שוב';
+    return;
+  }
+  goTo(3);
+});
+
+$('#resend').addEventListener('click', () => {
+  $('#toast2').hidden = false;
+  $('#toast2').textContent = 'קוד חדש נשלח ✓';
+});
+
+/* באג מתוכנן: הכפתור "חזור" מחפש אלמנט שלא קיים */
+$('#back').addEventListener('click', () => {
+  document.querySelector('#stepper .current').classList.remove('on');
+  goTo(1);
+});
+
+/* תקלות "רקע" מתוכננות, כדי שיהיה מה למצוא בלוגים וברשת */
+console.error('[analytics] init failed: missing config key "trackingId"');
+fetch('config/runtime.json').catch(() => console.warn('[config] runtime.json not found, using defaults'));
+</script>
+</body>
+</html>

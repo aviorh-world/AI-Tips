@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>AI לבודקים — מדריך מהיר</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 820px; margin: 24px auto; padding: 0 16px; color: #1d2330; line-height: 1.6; }
+  h1 { margin-bottom: 4px; } h2 { margin-top: 32px; border-bottom: 2px solid #e3e6ec; padding-bottom: 4px; }
+  .lead { color: #5a6275; }
+  .card { border: 1px solid #e3e6ec; border-radius: 10px; padding: 12px 16px; margin: 12px 0; background: #fff; }
+  .warn { background: #fff3cd; border-color: #e0c46c; }
+  details { border: 1px solid #d5dae3; border-radius: 8px; margin: 10px 0; padding: 8px 12px; background: #fafbfd; }
+  summary { cursor: pointer; font-weight: 700; }
+  pre { background: #1d2330; color: #e8ecf5; padding: 12px; border-radius: 8px; overflow-x: auto; direction: ltr; text-align: left; font-size: 13px; }
+  .copy { margin: 4px 0 0; padding: 4px 10px; border-radius: 6px; border: 1px solid #aab; background: #fff; cursor: pointer; }
+  table { width: 100%; border-collapse: collapse; } th, td { border-bottom: 1px solid #e3e6ec; padding: 6px; text-align: right; vertical-align: top; }
+  .ladder li { margin: 6px 0; }
+</style>
+</head>
+<body>
+
+<h1>AI לבודקים</h1>
+<p class="lead">מדריך קצר למעבר הדרגתי לעבודה עם AI בבדיקות. כל שלב בונה על הקודם, ואפשר לעצור בכל אחד מהם.</p>
+
+<h2>1. הסולם</h2>
+<ol class="ladder">
+  <li><strong>סקריפט אחד בסימנייה.</strong> מזהה אלמנטים בלי לחשוב על קוד.</li>
+  <li><strong>הקלטה של flow.</strong> הבודק מדגים, והמערכת זוכרת את הצעדים.</li>
+  <li><strong>הצעות ל-AI.</strong> מקרים נוספים שהבודק מאשר או דוחה.</li>
+  <li><strong>סיכום תקלה.</strong> ציר זמן של מה שקרה, עם השערה על השורש.</li>
+  <li><strong>הרצה חוזרת וייצוא.</strong> הצעדים הופכים לקוד שנשמר בגרסאות.</li>
+</ol>
+
+<h2>2. כללים שלא מתפשרים עליהם</h2>
+<div class="card warn">
+  <ul>
+    <li>לא מדביקים לכלי AI נתוני נישומים, מספרי זיהוי, או כל מידע מוגן. משתמשים בנתונים סינתטיים בלבד.</li>
+    <li>ה-AI מציע והבודק מחליט. שום ציפייה לא נכנסת לבדיקה בלי אישור אנושי.</li>
+    <li>הרצה רק בסביבות בדיקה מאושרות, לא בייצור.</li>
+    <li>אם תשובת ה-AI נראית משכנעת מדי, בודקים אותה מול הדרישה לפני שמאמינים לה.</li>
+  </ul>
+</div>
+
+<h2>3. ספריית פרומפטים</h2>
+<p>לחץ על כל נושא כדי לפתוח. כל פרומפט מכיל מקומות למילוי בסוגריים מרובעים.</p>
+
+<details>
+  <summary>מקרי בדיקה מדרישה</summary>
+  <div>
+    <pre id="p1">להלן דרישה: [הדבק דרישה]. צור מקרי בדיקה בעברית: חיוביים, שליליים, גבולות, ומקרי קצה. לכל מקרה: תנאי מקדים, צעדים, תוצאה צפויה. אל תמציא שדות או כללים שלא הופיעו בדרישה.</pre>
+    <button class="copy" data-copy="p1">העתק</button>
+  </div>
+</details>
+
+<details>
+  <summary>חיפוש חורים בכיסוי</summary>
+  <div>
+    <pre id="p2">הנה רשימת מקרי הבדיקה הקיימים: [הדבק]. והנה תיאור הפיצ'ר: [הדבק]. מה לא מכוסה? סווג את החסרים לפי סיכון, והצע מקרה אחד לכל חסר.</pre>
+    <button class="copy" data-copy="p2">העתק</button>
+  </div>
+</details>
+
+<details>
+  <summary>ניסוח באג</summary>
+  <div>
+    <pre id="p3">הנה שלבי השחזור הגולמיים: [הדבק]. הנה ההודעה שמופיעה: [הדבק]. נסח באג בעברית: כותרת, סביבה, שלבי שחזור ממוספרים, תוצאה צפויה, תוצאה בפועל. אל תוסיף עובדות שלא הופיעו.</pre>
+    <button class="copy" data-copy="p3">העתק</button>
+  </div>
+</details>
+
+<details>
+  <summary>ניתוח לוגים</summary>
+  <div>
+    <pre id="p4">להלן שגיאות מתוך הלוג (מסווים): [הדבק]. קבץ לפי סיבה אפשרית, ציין את השגיאה הנפוצה ביותר, והצע שלוש השערות לשורש. סמן כל השערה כהשערה.</pre>
+    <button class="copy" data-copy="p4">העתק</button>
+  </div>
+</details>
+
+<details>
+  <summary>נתוני בדיקה סינתטיים</summary>
+  <div>
+    <pre id="p5">צור 10 רשומות בדיקה סינתטיות לטופס עם השדות הבאים: [רשימת שדות]. השתמש בשמות ובכתובות בעברית שאינם שייכים לאנשים אמיתיים. אל תשתמש במספרים שנראים כמו מזהים אמיתיים.</pre>
+    <button class="copy" data-copy="p5">העתק</button>
+  </div>
+</details>
+
+<h2>4. סקריפטים לקונסול הדפדפן</h2>
+<p>להרצה ב-DevTools, בלשונית Console, בסביבת בדיקה בלבד.</p>
+
+<details>
+  <summary>אלמנטים בלי שם נגיש</summary>
+  <div>
+    <pre id="s1">[...document.querySelectorAll('button, a, input, select, textarea')]
+  .filter(el => !(el.innerText?.trim() || el.getAttribute('aria-label') || el.labels?.length || el.title))
+  .map(el => ({ tag: el.tagName, id: el.id, class: el.className }))</pre>
+    <button class="copy" data-copy="s1">העתק</button>
+  </div>
+</details>
+
+<details>
+  <summary>רשימת שדות טופס עם התוויות שלהם</summary>
+  <div>
+    <pre id="s2">[...document.querySelectorAll('input, select, textarea')].map(el => ({
+  name: el.name || el.id,
+  type: el.type,
+  label: el.labels?.[0]?.innerText?.trim() || el.getAttribute('aria-label') || '',
+  required: el.required,
+  maxlength: el.maxLength > 0 ? el.maxLength : null
+}))</pre>
+    <button class="copy" data-copy="s2">העתק</button>
+  </div>
+</details>
+
+<details>
+  <summary>בקשות רשת שנכשלו בדף הנוכחי</summary>
+  <div>
+    <pre id="s3">performance.getEntriesByType('resource')
+  .filter(r => r.responseStatus >= 400)
+  .map(r => ({ url: r.name.split('?')[0], status: r.responseStatus }))</pre>
+    <button class="copy" data-copy="s3">העתק</button>
+  </div>
+</details>
+
+<details>
+  <summary>תמונות שבורות</summary>
+  <div>
+    <pre id="s4">[...document.images].filter(img => !img.complete || img.naturalWidth === 0).map(img => img.src.split('?')[0])</pre>
+    <button class="copy" data-copy="s4">העתק</button>
+  </div>
+</details>
+
+<details>
+  <summary>מבנה דף מקוצר להדבקה בפרומפט</summary>
+  <div>
+    <pre id="s5">(function outline(el = document.body, depth = 0, out = []) {
+  if (depth > 4) return out;
+  const tag = el.tagName.toLowerCase();
+  const text = (el.childNodes.length === 1 && el.firstChild.nodeType === 3) ? el.textContent.trim().slice(0, 40) : '';
+  out.push('  '.repeat(depth) + tag + (el.id ? '#' + el.id : '') + (text ? ' "' + text + '"' : ''));
+  [...el.children].slice(0, 15).forEach(c => outline(c, depth + 1, out));
+  return out;
+})().join('\n')</pre>
+    <button class="copy" data-copy="s5">העתק</button>
+  </div>
+</details>
+
+<h2>5. תרגיל של 30 דקות</h2>
+<div class="card">
+  <ol>
+    <li>בחר מסך אחד מהמערכת שלך, או את מסך הדמו של התוסף.</li>
+    <li>הרץ את סקריפט אלמנטים בלי שם נגיש, ורשום את הממצאים.</li>
+    <li>בקש מה-AI מקרי בדיקה מתוך הדרישה, בלי נתונים אמיתיים.</li>
+    <li>סמן כל מקרה: מאושר, נדחה, או דורש תיקון. ספור כמה מקרים חדשים עלו לך.</li>
+  </ol>
+</div>
+
+<h2>6. מה חדש לעומת הדרך הישנה</h2>
+<table>
+  <tr><th>לפני</th><th>אחרי</th></tr>
+  <tr><td>כתיבת מקרי גבול ידנית</td><td>יצירה מהירה ואישור</td></tr>
+  <tr><td>העתקה ידנית של לוגים לדוח</td><td>ציר זמן אוטומטי</td></tr>
+  <tr><td>חיפוש שגיאה בלוגים לפי תחושה</td><td>קיבוץ והשערות שמסומנות כהשערות</td></tr>
+</table>
+
+<script>
+  document.querySelectorAll('.copy').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const text = document.getElementById(btn.dataset.copy).textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        btn.textContent = 'הועתק';
+        setTimeout(() => (btn.textContent = 'העתק'), 1500);
+      } catch {
+        btn.textContent = 'נכשל';
+      }
+    });
+  });
+</script>
+</body>
+</html>
