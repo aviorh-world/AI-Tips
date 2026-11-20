@@ -459,6 +459,38 @@
   </details>
 
   <details class="work">
+    <summary>🗄️ שאילתות DB שעובדות בפעם הראשונה</summary>
+    <div class="dbody">
+      <p>ה-AI לא רואה את ה-DB שלכם, אז הוא מנחש שמות של טבלאות ועמודות. במקום לתת לו לנחש, נותנים לו את המפה. מריצים את זה בסביבת הבדיקות ומדביקים לו את התוצאה:</p>
+      <div class="quote copyable">
+        <div class="qbar"><span class="ql">כל הטבלאות והעמודות (מבנה בלבד, בלי נתונים)</span><button class="btn small cbtn">📋 העתק</button></div>
+        <pre class="code ctext">SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, IS_NULLABLE
+FROM INFORMATION_SCHEMA.COLUMNS
+ORDER BY TABLE_NAME, ORDINAL_POSITION;</pre>
+      </div>
+      <p>ובנוסף, את <b>כל התוכן</b> של טבלאות קטנות וקבועות, כמו סטטוסים, סוגי בקשות וערים. את אלה הוא באמת לא יכול לנחש:</p>
+      <div class="quote copyable">
+        <div class="qbar"><span class="ql">טבלה סטטית, במלואה</span><button class="btn small cbtn">📋 העתק</button></div>
+        <pre class="code ctext">SELECT * FROM Statuses;</pre>
+      </div>
+      <div class="chat">
+        <div class="msg me"><div class="av">🙋‍♂️</div><div class="bub copyable">
+          <p class="ctext">הנה מבנה הטבלאות [מדביק], והנה כל טבלת הסטטוסים [מדביק]. תכתוב שאילתה שמוצאת בקשות שתקועות בסטטוס "ממתין לאימות" יותר מיום.</p>
+          <button class="btn small cbtn">📋 העתק</button>
+        </div></div>
+        <div class="msg ai"><div class="av">✨</div><div class="bub">
+          <pre class="code">SELECT a.ApplicationId, a.CreatedAt
+FROM Applications a
+WHERE a.StatusId = 3
+  AND a.CreatedAt &lt; DATEADD(day, -1, GETDATE());</pre>
+          <p>מטבלת הסטטוסים ידעתי ש"ממתין לאימות" הוא 3, אז לא הייתי צריך לנחש.</p>
+        </div></div>
+      </div>
+      <div class="tip">💡 <b>ומשם זה רק משתפר:</b> "מילאתי טופס ולחצתי שמור. תכתוב שאילתה שבודקת שהכל נשמר נכון." או: "תכתוב שאילתה שמנקה את נתוני הבדיקה שיצרתי היום." (את זו קוראים לפני שמריצים.)</div>
+    </div>
+  </details>
+
+  <details class="work">
     <summary>🔍 ניתוח לוגים</summary>
     <div class="dbody"><div class="chat">
       <div class="msg me"><div class="av">🙋‍♂️</div><div class="bub copyable">
@@ -518,7 +550,7 @@
 <!-- ===================== 5. טיפים ===================== -->
 <section id="tips" class="tips">
   <h2 class="sec"><span class="n">05</span>טיפים</h2>
-  <p class="lead">שבעה דברים שהייתי רוצה שמישהו יגיד לי ביום הראשון.</p>
+  <p class="lead">שמונה דברים שהייתי רוצה שמישהו יגיד לי ביום הראשון.</p>
 
   <details>
     <summary>🎯 תבקשו שיתחקר אתכם</summary>
@@ -552,6 +584,20 @@
   </details>
 
   <details>
+    <summary>🗺️ תנו לו את המפה</summary>
+    <div class="dbody">
+      <p>הוא לא רואה את המערכת שלכם. כל מה שהוא לא יודע, הוא מנחש. אז תנו לו:</p>
+      <ul>
+        <li>את מבנה הדף (סקריפט הסריקה)</li>
+        <li>את מבנה ה-DB, ואת התוכן של טבלאות קטנות וקבועות</li>
+        <li>את הסוואגר</li>
+        <li>שלוש שורות לוג לדוגמה</li>
+      </ul>
+      <p>ככה הוא מפסיק לנחש, ומתחיל לדייק.</p>
+    </div>
+  </details>
+
+  <details>
     <summary>🔎 תשאלו מה הוא לא בדק</summary>
     <div class="dbody">
       <div class="say copyable"><span class="ctext">"מה הבדיקה הזו לא בודקת? ומה יכול להיות לא נכון בתשובה שלך?"</span> <button class="btn small cbtn">📋 העתק</button></div>
@@ -560,9 +606,11 @@
   </details>
 
   <details>
-    <summary>⏱️ עשרים דקות, ואז שיחה חדשה</summary>
+    <summary>🔄 מתחיל להשתבש? שיחה חדשה</summary>
     <div class="dbody">
-      <p>אם השיחה מתחילה להסתובב במעגלים, לא ממשיכים להתעקש. פותחים שיחה חדשה ומדביקים בה בכמה שורות את מה שכבר ידוע.</p>
+      <p>בשיחה ארוכה מדי, ה-AI מתחיל לשכוח מה סיכמתם בהתחלה. הוא חוזר על טעויות, או מתקן דבר אחד ושובר דבר אחר. זה הסימן.</p>
+      <div class="say copyable"><span class="ctext">"תסכם לי בכמה שורות את כל מה שסיכמנו עד עכשיו, כדי שאפתח שיחה חדשה."</span> <button class="btn small cbtn">📋 העתק</button></div>
+      <p>פותחים שיחה חדשה, מדביקים את הסיכום, וממשיכים משם.</p>
     </div>
   </details>
 
