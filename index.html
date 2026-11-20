@@ -93,6 +93,17 @@
   a.drag { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(90deg, var(--yellow), #ffb347); color: #1a1a1a; font-weight: 800; text-decoration: none; padding: 6px 12px; border-radius: 8px; font-size: 13px; cursor: grab; }
   .cbtn.done { border-color: var(--green); color: var(--green); }
 
+  /* ---------- מתי מה ---------- */
+  .steps4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; align-items: end; }
+  .steps4 > div { background: var(--card); border: 1px solid var(--line); border-radius: 16px 16px 6px 6px; padding: 16px; }
+  .steps4 > div:nth-child(1) { min-height: 150px; } .steps4 > div:nth-child(2) { min-height: 190px; }
+  .steps4 > div:nth-child(3) { min-height: 230px; } .steps4 > div:nth-child(4) { min-height: 270px; border-color: var(--yellow); }
+  .steps4 .n { color: var(--yellow); font-weight: 900; font-size: 22px; }
+  .steps4 b { display: block; font-size: 18px; margin: 2px 0 6px; }
+  .steps4 .w { color: #d9ddf5; font-size: 14px; } .steps4 .e { color: var(--muted); font-size: 13px; margin-top: 8px; }
+  .rule { margin-top: 16px; font-size: 18px; font-weight: 800; } .rule span { color: var(--green); }
+  @media (max-width: 900px) { .steps4 { grid-template-columns: 1fr 1fr; } }
+
   /* ---------- מעבדה ---------- */
   .lab { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; align-items: start; }
   .labframe { position: sticky; top: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
@@ -120,6 +131,7 @@
   .pill.pass { background: #0d4d37; color: #8ff0c8; }
   .pill.fail { background: #5a1a2c; color: #ffb3c6; }
   .pill.skip { background: #3a3f63; color: #c7cdf0; }
+  .pill.open { background: #5a4a10; color: #ffe08a; }
   pre.out { background: #10142e; border: 1px solid var(--line); border-radius: 10px; padding: 12px; white-space: pre-wrap; font-size: 13.5px; margin: 0; }
 
   /* ---------- תוסף ---------- */
@@ -158,8 +170,9 @@
   .modal h4 { margin: 0 0 4px; font-size: 20px; }
   .modal p.hint { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
   .modal label { display: block; font-weight: 700; margin: 12px 0 4px; }
-  .modal input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #3a4382; background: #0f1330; color: var(--ink); font-size: 16px; font-family: inherit; }
-  .modal input:focus { outline: 2px solid var(--green); border-color: transparent; }
+  .modal .box { max-height: 88vh; overflow-y: auto; }
+  .modal input, .modal select { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #3a4382; background: #0f1330; color: var(--ink); font-size: 16px; font-family: inherit; }
+  .modal input:focus, .modal select:focus { outline: 2px solid var(--green); border-color: transparent; }
   .modal .actions { margin-top: 18px; }
   .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: #1f2549; border: 1px solid var(--yellow); color: var(--ink); padding: 10px 18px; border-radius: 12px; font-size: 15px; z-index: 60; display: none; max-width: 92%; text-align: center; }
   .toast.on { display: block; animation: pop .25s ease; }
@@ -193,6 +206,7 @@
   </div>
   <nav class="chips">
     <a href="#story">איך זה התחיל</a>
+    <a href="#when">מתי מה?</a>
     <a href="#lab">ארגז הכלים</a>
     <a href="#ext">התוסף</a>
     <a href="#work">עוד דברים ש-AI עושה</a>
@@ -307,6 +321,19 @@
   </div>
 
   <p class="epilogue">וזה היה הרגע שבו הבנתי: <span>הכל עניין של לדעת לעבוד נכון.</span></p>
+</section>
+
+<!-- ===================== מתי מה ===================== -->
+<section id="when">
+  <h2 class="sec"><span class="n">✦</span>מתי מה?</h2>
+  <p class="lead">לא כל דבר צריך AI. בוחרים את המדרגה הכי נמוכה שעושה את העבודה: היא הכי מהירה, הכי צפויה, והכי קלה לתחזוקה.</p>
+  <div class="steps4">
+    <div><span class="n">1</span><b>ידני</b><div class="w">עושים פעם אחת, או בודקים תחושה</div><div class="e">חקירה של מסך חדש</div></div>
+    <div><span class="n">2</span><b>סקריפט</b><div class="w">אותה פעולה, אותה תוצאה, כל פעם</div><div class="e">הסימנייה שממלאת כתובת</div></div>
+    <div><span class="n">3</span><b>אוטומציה</b><div class="w">חוזר שוב ושוב, ורוצים לשמור</div><div class="e">הקלטה בתוסף, ייצוא ל-Playwright</div></div>
+    <div><span class="n">4</span><b>AI</b><div class="w">צריך הבנה, ניסוח או שיקול דעת</div><div class="e">באג, לוגים, הצעות לבדיקות</div></div>
+  </div>
+  <p class="rule">והסוד: <span>ה-AI בונה, הסקריפט רץ.</span> כמעט כל סקריפט בדף הזה נכתב בעזרת AI, אבל רץ בלעדיו.</p>
 </section>
 
 <!-- ===================== 2. ארגז הכלים ===================== -->
@@ -1041,6 +1068,97 @@ javascript:void(document.querySelector('[name="address"]').value="Jerusalem hana
   return rows;
 })()
 </script>
+<script type="text/plain" id="code-interview">
+(async () => {
+  const BLOCK = 'נחסם', ACCEPT = 'מתקבל', UNKNOWN = 'לא יודע';
+  const OPTIONS = [BLOCK, ACCEPT, UNKNOWN];
+  const ltr = t => '\u2066' + t + '\u2069';
+  const visible = el => el.offsetParent !== null;
+  const nameOf = el => ((el.labels && el.labels[0] ? el.labels[0].innerText : el.placeholder || el.name || '') + '').replace('*', '').replace(/\s+/g, ' ').trim();
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const setValue = (el, v) => {
+    const setter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(el), 'value');
+    if (setter && setter.set) setter.set.call(el, v); else el.value = v;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+  const validValue = el => {
+    const k = (el.name + ' ' + el.id + ' ' + el.placeholder).toLowerCase();
+    if (el.type === 'email') return 'test@example.com';
+    if (el.type === 'tel') return '0501234567';
+    if (el.type === 'date') return '1990-01-01';
+    if (el.type === 'number') { let n = 30; if (el.min !== '') n = Math.max(n, +el.min); if (el.max !== '') n = Math.min(n, +el.max); return String(n); }
+    if (/zip|postal|מיקוד/.test(k)) return '9100001';
+    return 'בדיקה';
+  };
+
+  const form = [...document.forms].find(visible) || document;
+  const fields = [...form.querySelectorAll('input, textarea')].filter(el => visible(el) && !['checkbox', 'radio', 'submit', 'button', 'hidden', 'date', 'file'].includes(el.type));
+  const submit = [...form.querySelectorAll('button[type=submit], input[type=submit]')].find(visible);
+
+  /* שלב 1: בונים את השאלות מתוך הדף. אותו דף = אותן שאלות */
+  const checks = [];
+  fields.forEach(el => {
+    const n = nameOf(el);
+    const add = (what, value, def) => checks.push({ el, value, q: n + ': ' + what, d: def, options: OPTIONS });
+    if (el.required) add('מה צריך לקרות כשהשדה ריק?', '', BLOCK);
+    if (el.type === 'email') add('מה צריך לקרות עם מייל בלי @ (' + ltr('test.example.com') + ')?', 'test.example.com', BLOCK);
+    if (el.type === 'number' && el.min !== '') add('מה צריך לקרות עם ' + (+el.min - 1) + '?', String(+el.min - 1), BLOCK);
+    if (el.type === 'number' && el.max !== '') add('מה צריך לקרות עם ' + (+el.max + 1) + '?', String(+el.max + 1), BLOCK);
+    if (el.pattern) add('מה צריך לקרות עם אותיות (' + ltr('abc') + ')?', 'abc', BLOCK);
+    const free = !el.required && !el.pattern && !(el.maxLength > 0) && ['text', 'textarea', 'search'].includes(el.type || 'text');
+    if (free) add('לשדה אין שום הגבלה. מה צריך לקרות עם אותיות וסימנים (' + ltr('abc!@#') + ')?', 'abc!@#', UNKNOWN);
+  });
+  const questions = checks.map(c => ({ q: c.q, d: c.d, options: c.options }));
+  if (submit) questions.push({ q: 'אחרי מילוי תקין ולחיצה על "' + submit.innerText.trim() + '", איזה טקסט אמור להופיע? (ריק = לא לבדוק)', d: '' });
+
+  /* שלב 2: שואלים. בדף ההרצאה יש חלון שאלות; בקונסול של כל אתר אחר, prompt רגיל */
+  let answers;
+  if (typeof window.__qaAsk === 'function') {
+    answers = await window.__qaAsk(questions);
+    if (!answers) return [];
+  } else {
+    answers = questions.map(x => {
+      const hint = x.options ? '\n(' + x.options.join(' / ') + ')' : '';
+      const a = prompt(x.q + hint, x.d);
+      return a === null ? x.d : a.trim();
+    });
+  }
+
+  /* שלב 3: מריצים את הבדיקות לפי מה שענית */
+  const rows = [];
+  const add = (test, said, happened, result) => rows.push({ 'בדיקה': test, 'מה אמרת': said, 'מה קרה': happened, 'תוצאה': result });
+  checks.forEach((c, i) => {
+    const said = answers[i] || UNKNOWN;
+    const original = c.el.value;
+    setValue(c.el, c.value);
+    const blocked = !c.el.checkValidity();
+    setValue(c.el, original);
+    const happened = blocked ? BLOCK : ACCEPT;
+    if (said === UNKNOWN) add(c.q, said, happened, 'שאלה פתוחה');
+    else add(c.q, said, happened, said === happened ? 'עבר' : 'נכשל');
+  });
+
+  const expected = submit ? (answers[checks.length] || '').trim() : '';
+  if (submit && expected) {
+    form.querySelectorAll('input, textarea').forEach(el => {
+      if (!visible(el) || ['submit', 'button', 'hidden'].includes(el.type)) return;
+      if (el.type === 'checkbox') { if (el.required && !el.checked) el.click(); return; }
+      setValue(el, validValue(el));
+    });
+    const label = submit.innerText.trim();
+    submit.click();
+    let ok = false;
+    for (let t = 0; t < 40 && !ok; t++) { await wait(100); ok = document.body.innerText.includes(expected); }
+    add('מילוי תקין ולחיצה על "' + label + '"', expected, ok ? 'הופיע' : 'לא הופיע', ok ? 'עבר' : 'נכשל');
+  }
+
+  console.table(rows);
+  const open = rows.filter(r => r['תוצאה'] === 'שאלה פתוחה').map(r => '- ' + r['בדיקה'] + ' (בפועל: ' + r['מה קרה'] + ')');
+  if (open.length) console.log('שאלות פתוחות לאנליסט או למפתח:\n' + open.join('\n'));
+  return rows;
+})()
+</script>
 <script>window.__DEMO_HTML__ = "<!doctype html>\n<html lang=\"he\" dir=\"rtl\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>מערכת בקשות מקוונת · סביבת בדיקות<\/title>\n<style>\n  * { box-sizing: border-box; }\n  [hidden] { display: none !important; }\n  body { margin: 0; font-family: system-ui, \"Segoe UI\", Arial, sans-serif; background: #eef1f6; color: #1d2330; }\n  .ribbon { background: repeating-linear-gradient(45deg, #ffcf3f, #ffcf3f 12px, #1d2330 12px, #1d2330 24px); height: 6px; }\n  .topbar { display: flex; align-items: center; gap: 12px; background: #fff; padding: 12px 20px; border-bottom: 1px solid #dde2ea; }\n  .logo { width: 34px; height: 34px; }\n  .title { font-size: 20px; font-weight: 800; }\n  .env { margin-right: auto; background: #1d2330; color: #ffcf3f; font-weight: 800; font-size: 12px; padding: 3px 10px; border-radius: 99px; }\n  .stepper { display: flex; gap: 8px; justify-content: center; margin: 18px 0 0; }\n  .stepper span { background: #fff; border: 1px solid #d5dbe5; color: #6b7385; padding: 5px 14px; border-radius: 99px; font-size: 14px; }\n  .stepper span.on { background: #2457d6; border-color: #2457d6; color: #fff; }\n  main { max-width: 640px; margin: 16px auto 30px; background: #fff; border-radius: 14px; box-shadow: 0 6px 24px #1d233014; padding: 22px 26px; }\n  h2 { margin: 0 0 14px; font-size: 21px; }\n  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }\n  .field label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 4px; }\n  .field input { width: 100%; padding: 9px 10px; border: 1px solid #c8cfdb; border-radius: 8px; font-size: 15px; font-family: inherit; }\n  .field input.invalid { border-color: #d63b3b; background: #fff5f5; }\n  .wide { grid-column: 1 / -1; }\n  .check { display: flex; gap: 8px; align-items: center; font-size: 14px; margin-top: 14px; }\n  .fine { font-size: 10px; color: #8a92a3; margin: 10px 0 0; }\n  .err { margin-top: 12px; background: #fde8e8; color: #9b1c1c; border-radius: 8px; padding: 9px 12px; font-size: 14px; }\n  .actions { display: flex; gap: 10px; align-items: center; margin-top: 18px; }\n  button { font-family: inherit; font-size: 15px; border-radius: 8px; padding: 9px 18px; cursor: pointer; border: 1px solid #c8cfdb; background: #fff; }\n  button.primary { background: #2457d6; border-color: #2457d6; color: #fff; font-weight: 700; }\n  button.narrow { width: 66px; padding: 9px 6px; overflow: hidden; white-space: nowrap; }\n  button.icon { width: 22px; height: 22px; padding: 2px; margin-right: auto; display: grid; place-items: center; border: none; background: transparent; }\n  .toast { margin-top: 12px; font-size: 14px; color: #1e7b3a; }\n  .success { width: 64px; height: 64px; border-radius: 50%; background: #1e7b3a; color: #fff; font-size: 34px; display: grid; place-items: center; margin: 6px auto 14px; }\n  #step3 { text-align: center; }\n  footer { text-align: center; color: #8a92a3; font-size: 13px; padding-bottom: 24px; }\n  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }\n<\/style>\n<\/head>\n<body>\n<div class=\"ribbon\"><\/div>\n<div class=\"topbar\">\n  <img src=\"assets/logo.png\" class=\"logo\">\n  <div class=\"title\">מערכת בקשות מקוונת<\/div>\n  <span class=\"env\">TEST<\/span>\n<\/div>\n\n<div class=\"stepper\" id=\"stepper\">\n  <span class=\"on\">1 · פרטים<\/span><span>2 · אימות<\/span><span>3 · סיום<\/span>\n<\/div>\n\n<main>\n  <section id=\"step1\">\n    <h2>פרטים אישיים<\/h2>\n    <form id=\"form1\" novalidate>\n      <div class=\"grid\">\n        <div class=\"field\"><label for=\"firstName\">שם פרטי *<\/label><input id=\"firstName\" name=\"firstName\" required><\/div>\n        <div class=\"field\"><label for=\"lastName\">שם משפחה *<\/label><input id=\"lastName\" name=\"lastName\" required maxlength=\"30\"><\/div>\n        <div class=\"field wide\"><label for=\"address\">כתובת<\/label><input id=\"address\" name=\"address\"><\/div>\n        <div class=\"field\"><label for=\"email\">מייל<\/label><input id=\"email\" name=\"email\" type=\"email\"><\/div>\n        <div class=\"field\"><label for=\"age\">גיל<\/label><input id=\"age\" name=\"age\" type=\"number\" min=\"18\" max=\"120\"><\/div>\n        <div class=\"field\"><label for=\"birthDate\">תאריך לידה<\/label><input id=\"birthDate\" name=\"birthDate\" type=\"date\"><\/div>\n        <div class=\"field\"><label for=\"phone\">טלפון<\/label><input id=\"phone\" name=\"phone\" type=\"tel\" pattern=\"0\\d{8,9}\"><\/div>\n        <div class=\"field\"><input id=\"zip\" name=\"zip\" placeholder=\"מיקוד\"><\/div>\n      <\/div>\n      <label class=\"check\"><input type=\"checkbox\" id=\"terms\" name=\"terms\" required> אני מאשר/ת את <a href=\"#\">תנאי השימוש<\/a><\/label>\n      <p class=\"fine\">* שדות חובה<\/p>\n      <div class=\"err\" role=\"alert\" id=\"err1\" hidden><\/div>\n      <div class=\"actions\">\n        <button type=\"submit\" class=\"primary\">הבא<\/button>\n        <button type=\"button\" class=\"narrow\" id=\"saveDraft\">שמור כטיוטה<\/button>\n        <button type=\"button\" class=\"icon\" id=\"delDraft\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#9b1c1c\" stroke-width=\"2\"><path d=\"M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14\"/><\/svg><\/button>\n      <\/div>\n      <div class=\"toast\" id=\"toast1\" hidden><\/div>\n    <\/form>\n  <\/section>\n\n  <section id=\"step2\" hidden>\n    <h2>אימות SMS<\/h2>\n    <p>שלחנו קוד בן 6 ספרות לטלפון שהזנת.<\/p>\n    <form id=\"form2\" novalidate>\n      <div class=\"field\"><label for=\"smsCode\">קוד אימות<\/label><input id=\"smsCode\" name=\"smsCode\" inputmode=\"numeric\" maxlength=\"6\" required pattern=\"\\d{6}\"><\/div>\n      <p class=\"fine\">בסביבת הבדיקות הקוד הוא 123456<\/p>\n      <div class=\"err\" role=\"alert\" id=\"err2\" hidden><\/div>\n      <div class=\"actions\">\n        <button type=\"submit\" class=\"primary\">אמת<\/button>\n        <button type=\"button\" id=\"resend\">שלח שוב קוד<\/button>\n        <button type=\"button\" id=\"back\">חזור<\/button>\n      <\/div>\n      <div class=\"toast\" id=\"toast2\" hidden><\/div>\n    <\/form>\n  <\/section>\n\n  <section id=\"step3\" hidden>\n    <div class=\"success\">✓<\/div>\n    <h2>הבקשה נקלטה בהצלחה<\/h2>\n    <p>מספר אסמכתא: <b id=\"ref\">QA-2026-0042<\/b><\/p>\n  <\/section>\n<\/main>\n\n<footer>סביבת בדיקות · כל הנתונים בדף הם נתוני דמו<\/footer>\n\n<script>\n/* ===== שרת מדומה: כל קריאה ל-/api/ נענית מכאן, בלי שרת אמיתי ===== */\n(() => {\n  const realFetch = window.fetch.bind(window);\n  const json = (obj, status = 200) => ({ body: JSON.stringify(obj), status, type: 'application/json' });\n  const LOGS = [\n    '2026-11-19 07:41:02.114 INFO  [gateway]       corr=a1f3 GET /api/health 200 118ms',\n    '2026-11-19 07:41:03.520 INFO  [auth-service]  corr=b7c0 token issued user=1001',\n    '2026-11-19 07:41:05.002 INFO  [gateway]       corr=c2d9 GET /api/user/me 200 176ms',\n    '2026-11-19 07:41:08.931 WARN  [auth-service]  corr=b7c0 token expires in 120s',\n    '2026-11-19 07:41:11.407 INFO  [gateway]       corr=d4e1 GET /api/cities 200 1402ms',\n    '2026-11-19 07:41:11.409 WARN  [cities-service] corr=d4e1 slow query 1390ms (limit 1000ms)',\n    '2026-11-19 07:41:12.230 ERROR [orders-service] corr=c7f2 DB timeout after 3000ms (pool exhausted)',\n    '2026-11-19 07:41:12.231 ERROR [gateway]       corr=c7f2 GET /api/orders 500 3004ms',\n    '2026-11-19 07:41:12.240 ERROR [orders-service] corr=c7f2 retry 1 failed: DB timeout',\n    '2026-11-19 07:41:14.118 INFO  [gateway]       corr=e9a0 POST /api/applications 201 212ms',\n    '2026-11-19 07:41:15.877 INFO  [sms-service]   corr=e9a0 code sent to 05*******67',\n    '2026-11-19 07:41:19.302 ERROR [orders-service] corr=f013 DB timeout after 3000ms (pool exhausted)',\n    '2026-11-19 07:41:19.305 ERROR [gateway]       corr=f013 GET /api/orders 500 3007ms',\n    '2026-11-19 07:41:21.660 INFO  [sms-service]   corr=e9a0 code verified',\n    '2026-11-19 07:41:22.014 WARN  [orders-service] corr=-    connection pool at 100% (20/20)',\n    '2026-11-19 07:41:25.440 ERROR [notify-service] corr=e9a0 email template \"approved\" not found',\n    '2026-11-19 07:41:26.001 INFO  [gateway]       corr=a8b2 GET /api/health 200 121ms',\n    '2026-11-19 07:41:29.774 ERROR [orders-service] corr=a9d6 DB timeout after 3000ms (pool exhausted)',\n    '2026-11-19 07:41:29.776 ERROR [gateway]       corr=a9d6 GET /api/orders 500 3002ms',\n    '2026-11-19 07:41:31.090 INFO  [gateway]       corr=b0c1 GET /api/user/me 200 181ms'\n  ].join('\\n');\n  const SPEC = {\n    openapi: '3.0.0',\n    info: { title: 'מערכת בקשות · API לבדיקות', version: '1.4.0' },\n    servers: [{ url: '' }],\n    paths: {\n      '/api/health': { get: { summary: 'בדיקת חיים' } },\n      '/api/user/me': { get: { summary: 'המשתמש המחובר' } },\n      '/api/user/{id}': { get: { summary: 'משתמש לפי מזהה' } },\n      '/api/cities': { get: { summary: 'רשימת ערים' } },\n      '/api/orders': { get: { summary: 'הזמנות' } },\n      '/api/applications': { post: { summary: 'יצירת בקשה' } },\n      '/api/sms/verify': { post: { summary: 'אימות קוד SMS' } }\n    }\n  };\n  const routes = {\n    'GET openapi.json': () => [json(SPEC), 60],\n    'GET health': () => [json({ status: 'UP' }), 120],\n    'GET user/me': () => [json({ id: 1001, name: 'ישראל בדיקה' }), 180],\n    'GET cities': () => [json(['ירושלים', 'תל אביב', 'חיפה', 'באר שבע']), 1400],\n    'GET orders': () => [json({ error: 'Internal Server Error', corr: 'c7f2' }, 500), 300],\n    'GET logs': () => [{ body: LOGS, status: 200, type: 'text/plain' }, 90],\n    'POST applications': () => [json({ id: 'APP-0042' }, 201), 200],\n    'POST sms/verify': (body) => {\n      let code = '';\n      try { code = JSON.parse(body || '{}').code; } catch (e) { /* גוף לא תקין */ }\n      return [code === '123456' ? json({ ok: true }) : json({ ok: false, error: 'קוד שגוי' }, 400), 250];\n    }\n  };\n  window.fetch = async (input, init = {}) => {\n    const url = new URL(typeof input === 'string' ? input : input.url, document.baseURI);\n    const i = url.pathname.indexOf('/api/');\n    if (i === -1) return realFetch(input, init);\n    const method = (init.method || 'GET').toUpperCase();\n    const key = method + ' ' + url.pathname.slice(i + 5);\n    const handler = routes[key];\n    const [res, delay] = handler ? handler(init.body) : [json({ error: 'Not Found' }, 404), 50];\n    await new Promise((r) => setTimeout(r, delay));\n    return new Response(res.body, { status: res.status, headers: { 'Content-Type': res.type } });\n  };\n})();\n\n/* ===== התנהגות הטופס ===== */\nconst $ = (s) => document.querySelector(s);\nconst stepper = [...document.querySelectorAll('#stepper span')];\n\nfunction goTo(n) {\n  ['#step1', '#step2', '#step3'].forEach((s, i) => { $(s).hidden = i !== n - 1; });\n  stepper.forEach((s, i) => s.classList.toggle('on', i === n - 1));\n}\n\nfunction validate(form, errBox) {\n  const bad = [...form.elements].filter((el) => el.willValidate && !el.checkValidity());\n  [...form.elements].forEach((el) => el.classList && el.classList.toggle('invalid', bad.includes(el)));\n  errBox.hidden = bad.length === 0;\n  errBox.textContent = bad.length ? 'יש לתקן ' + bad.length + ' שדות לפני שממשיכים' : '';\n  return bad.length === 0;\n}\n\n$('#form1').addEventListener('submit', async (e) => {\n  e.preventDefault();\n  if (!validate(e.target, $('#err1'))) return;\n  await fetch('/api/applications', { method: 'POST', body: JSON.stringify({ name: $('#firstName').value }) });\n  goTo(2);\n  $('#smsCode').focus();\n});\n\n$('#saveDraft').addEventListener('click', () => {\n  $('#toast1').hidden = false;\n  $('#toast1').textContent = 'הטיוטה נשמרה ✓';\n});\n\n$('#delDraft').addEventListener('click', () => {\n  $('#form1').reset();\n  $('#toast1').hidden = false;\n  $('#toast1').textContent = 'הטיוטה נמחקה';\n});\n\n$('#form2').addEventListener('submit', async (e) => {\n  e.preventDefault();\n  if (!validate(e.target, $('#err2'))) return;\n  const r = await fetch('/api/sms/verify', { method: 'POST', body: JSON.stringify({ code: $('#smsCode').value }) });\n  if (!r.ok) {\n    $('#err2').hidden = false;\n    $('#err2').textContent = 'הקוד שגוי, נסו שוב';\n    return;\n  }\n  goTo(3);\n});\n\n$('#resend').addEventListener('click', () => {\n  $('#toast2').hidden = false;\n  $('#toast2').textContent = 'קוד חדש נשלח ✓';\n});\n\n/* באג מתוכנן: הכפתור \"חזור\" מחפש אלמנט שלא קיים */\n$('#back').addEventListener('click', () => {\n  document.querySelector('#stepper .current').classList.remove('on');\n  goTo(1);\n});\n\n/* תקלות \"רקע\" מתוכננות, כדי שיהיה מה למצוא בלוגים וברשת */\nconsole.error('[analytics] init failed: missing config key \"trackingId\"');\nfetch('config/runtime.json').catch(() => console.warn('[config] runtime.json not found, using defaults'));\n<\/script>\n<\/body>\n<\/html>\n";</script>
 
 <script>
@@ -1089,7 +1207,11 @@ const TOOLS = [
   { id: 'auto', icon: '🤖', title: 'הבודק האוטומטי', tag: 'הכל', reset: true,
     desc: 'הסקריפט מהשיחה. קורא את הדף ובודק שדות, נגישות, מראה ורשת בבת אחת. לא לוחץ על כלום.',
     demo: 'חצי מהטבלה אדומה, בדיוק כמו בשיחה.',
-    ask: 'כתוב סקריפט שקורא את ההגבלות שכבר כתובות בדף ובונה מהן בדיקות, בלי ללחוץ על שום דבר.' }
+    ask: 'כתוב סקריפט שקורא את ההגבלות שכבר כתובות בדף ובונה מהן בדיקות, בלי ללחוץ על שום דבר.' },
+  { id: 'interview', icon: '🧑‍🏫', title: 'המתחקר', tag: 'הכל', reset: true,
+    desc: 'סורק את הדף ושואל אותך על כל שדה מה אמור לקרות: ריק, גבולות, אותיות. השאלות נגזרות מהדף, בלי AI. מהתשובות שלך הוא בונה בדיקות ומריץ אותן. כל "לא יודע" הופך לשאלה פתוחה לאנליסט.',
+    demo: 'ענו "נחסם" על המיקוד ותמצאו באג. השאירו "לא יודע" ותקבלו שאלה פתוחה.',
+    ask: 'כתוב סקריפט שסורק את הטופס, שואל אותי על כל שדה מה צריך לקרות במקרי קצה (נחסם / מתקבל / לא יודע), ובונה מהתשובות שלי בדיקות.' }
 ];
 
 const codeOf = (id) => (document.getElementById('code-' + id) || { textContent: '' }).textContent.trim();
@@ -1157,7 +1279,7 @@ const demoReady = loadDemo();
 document.getElementById('resetDemo').addEventListener('click', loadDemo);
 
 function pillFor(v) {
-  const cls = v === 'עבר' ? 'pass' : v === 'נכשל' ? 'fail' : 'skip';
+  const cls = v === 'עבר' ? 'pass' : v === 'נכשל' ? 'fail' : v === 'שאלה פתוחה' ? 'open' : 'skip';
   return `<span class="pill ${cls}">${esc(v)}</span>`;
 }
 function render(res, box) {
@@ -1171,7 +1293,7 @@ function render(res, box) {
   const cols = [...new Set(res.flatMap((r) => Object.keys(r)))];
   const count = (v) => res.filter((r) => r['תוצאה'] === v).length;
   const sum = cols.includes('תוצאה')
-    ? `<div class="sum"><span class="pill pass">✓ ${count('עבר')} עברו</span><span class="pill fail">✗ ${count('נכשל')} נכשלו</span>${count('דילוג') ? `<span class="pill skip">⏭ ${count('דילוג')} דילוג</span>` : ''}</div>`
+    ? `<div class="sum"><span class="pill pass">✓ ${count('עבר')} עברו</span><span class="pill fail">✗ ${count('נכשל')} נכשלו</span>${count('דילוג') ? `<span class="pill skip">⏭ ${count('דילוג')} דילוג</span>` : ''}${count('שאלה פתוחה') ? `<span class="pill open">❓ ${count('שאלה פתוחה')} שאלות פתוחות</span>` : ''}</div>`
     : '';
   box.innerHTML = sum + '<table class="rt"><tr>' + cols.map((c) => `<th>${esc(c)}</th>`).join('') + '</tr>' +
     res.map((r, i) => `<tr style="animation-delay:${i * 40}ms">` + cols.map((c) => `<td${String(r[c] ?? '').length < 12 ? ' class="nw"' : ''}>${c === 'תוצאה' ? pillFor(r[c]) : esc(r[c])}</td>`).join('') + '</tr>').join('') + '</table>';
@@ -1188,7 +1310,9 @@ function askUser(questions) {
   return new Promise((resolve) => {
     const modal = document.getElementById('askModal');
     const box = document.getElementById('askFields');
-    box.innerHTML = questions.map((x, i) => `<label for="ask${i}">${esc(x.q)}</label><input id="ask${i}" value="${esc(x.d)}">`).join('');
+    box.innerHTML = questions.map((x, i) => `<label for="ask${i}">${esc(x.q)}</label>` + (x.options
+      ? `<select id="ask${i}">${x.options.map((o) => `<option${o === x.d ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select>`
+      : `<input id="ask${i}" value="${esc(x.d)}">`)).join('');
     modal.classList.add('on');
     setTimeout(() => { const f = box.querySelector('input'); if (f) { f.focus(); f.select(); } }, 50);
     const done = (answers) => { modal.classList.remove('on'); form.onsubmit = null; cancel.onclick = null; resolve(answers); };
@@ -1229,6 +1353,7 @@ document.addEventListener('click', async (e) => {
     if (innerWidth <= 900) frame.scrollIntoView({ behavior: 'smooth', block: 'center' });
     const queue = answers.slice();
     frame.contentWindow.prompt = (q, d) => (queue.length ? queue.shift() : d);
+    frame.contentWindow.__qaAsk = (qs) => askUser(qs);
     const res = await runInDemo(code);
     render(res, box);
   } catch (err) {
