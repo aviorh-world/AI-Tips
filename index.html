@@ -93,6 +93,17 @@
   a.drag { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(90deg, var(--yellow), #ffb347); color: #1a1a1a; font-weight: 800; text-decoration: none; padding: 6px 12px; border-radius: 8px; font-size: 13px; cursor: grab; }
   .cbtn.done { border-color: var(--green); color: var(--green); }
 
+  /* ---------- מתי מה ---------- */
+  .steps4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; align-items: end; }
+  .steps4 > div { background: var(--card); border: 1px solid var(--line); border-radius: 16px 16px 6px 6px; padding: 16px; }
+  .steps4 > div:nth-child(1) { min-height: 150px; } .steps4 > div:nth-child(2) { min-height: 190px; }
+  .steps4 > div:nth-child(3) { min-height: 230px; } .steps4 > div:nth-child(4) { min-height: 270px; border-color: var(--yellow); }
+  .steps4 .n { color: var(--yellow); font-weight: 900; font-size: 22px; }
+  .steps4 b { display: block; font-size: 18px; margin: 2px 0 6px; }
+  .steps4 .w { color: #d9ddf5; font-size: 14px; } .steps4 .e { color: var(--muted); font-size: 13px; margin-top: 8px; }
+  .rule { margin-top: 16px; font-size: 18px; font-weight: 800; } .rule span { color: var(--green); }
+  @media (max-width: 900px) { .steps4 { grid-template-columns: 1fr 1fr; } }
+
   /* ---------- מעבדה ---------- */
   .lab { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; align-items: start; }
   .labframe { position: sticky; top: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
@@ -120,6 +131,7 @@
   .pill.pass { background: #0d4d37; color: #8ff0c8; }
   .pill.fail { background: #5a1a2c; color: #ffb3c6; }
   .pill.skip { background: #3a3f63; color: #c7cdf0; }
+  .pill.open { background: #5a4a10; color: #ffe08a; }
   pre.out { background: #10142e; border: 1px solid var(--line); border-radius: 10px; padding: 12px; white-space: pre-wrap; font-size: 13.5px; margin: 0; }
 
   /* ---------- תוסף ---------- */
@@ -158,8 +170,9 @@
   .modal h4 { margin: 0 0 4px; font-size: 20px; }
   .modal p.hint { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
   .modal label { display: block; font-weight: 700; margin: 12px 0 4px; }
-  .modal input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #3a4382; background: #0f1330; color: var(--ink); font-size: 16px; font-family: inherit; }
-  .modal input:focus { outline: 2px solid var(--green); border-color: transparent; }
+  .modal .box { max-height: 88vh; overflow-y: auto; }
+  .modal input, .modal select { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #3a4382; background: #0f1330; color: var(--ink); font-size: 16px; font-family: inherit; }
+  .modal input:focus, .modal select:focus { outline: 2px solid var(--green); border-color: transparent; }
   .modal .actions { margin-top: 18px; }
   .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: #1f2549; border: 1px solid var(--yellow); color: var(--ink); padding: 10px 18px; border-radius: 12px; font-size: 15px; z-index: 60; display: none; max-width: 92%; text-align: center; }
   .toast.on { display: block; animation: pop .25s ease; }
@@ -193,6 +206,8 @@
   </div>
   <nav class="chips">
     <a href="#story">איך זה התחיל</a>
+    <a href="#scene2">תעזור לי למצוא באגים</a>
+    <a href="#when">מתי מה?</a>
     <a href="#lab">ארגז הכלים</a>
     <a href="#ext">התוסף</a>
     <a href="#work">עוד דברים ש-AI עושה</a>
@@ -208,8 +223,8 @@
   <p class="lead">יום רגיל, טופס רגיל, ומישהו בעבודה ששאל אותי: "למה אתה מקליד את זה ידנית?"</p>
 
   <div class="chatwin">
-    <div class="chathead"><span class="dot"></span><b>צ'אט AI</b><span>· מחובר</span><span class="ctr" id="ctr"></span></div>
-    <div class="chat" id="chat">
+    <div class="chathead"><span class="dot"></span><b>צ'אט AI</b><span>· מחובר</span><span class="ctr"></span></div>
+    <div class="chat">
 
       <div class="msg me"><div class="av">🙋‍♂️</div><div class="bub">
         <p>היי צ'אט 👋 כל יום אני ממלא ידנית את שדה הכתובת בטופס שאני בודק. אותה כתובת, עשרים פעם ביום. יש דרך שזה יתמלא לבד?</p><span class="time">08:02</span>
@@ -296,12 +311,12 @@
         <p><b>אני כותב. אתה חותם.</b></p><span class="time">08:12</span>
       </div></div>
 
-      <div class="typing" id="typing"><i></i><i></i><i></i></div>
+      <div class="typing"><i></i><i></i><i></i></div>
     </div>
     <div class="chatctl">
-      <button class="btn primary" id="nextMsg">המשך ◂</button>
-      <button class="btn small" id="allMsg">הצג את כל השיחה</button>
-      <button class="btn small" id="resetMsg">מההתחלה ↺</button>
+      <button class="btn primary c-next">המשך ◂</button>
+      <button class="btn small c-all">הצג את כל השיחה</button>
+      <button class="btn small c-reset">מההתחלה ↺</button>
       <span class="kbd">אפשר גם עם החץ השמאלי או עם הקליקר</span>
     </div>
   </div>
@@ -309,9 +324,141 @@
   <p class="epilogue">וזה היה הרגע שבו הבנתי: <span>הכל עניין של לדעת לעבוד נכון.</span></p>
 </section>
 
+<!-- ===================== סצנה 2 ===================== -->
+<section id="scene2">
+  <h2 class="sec"><span class="n">02</span>תעזור לי למצוא באגים</h2>
+  <p class="lead">שיחה שנייה, על מסך חדש. הפעם שימו לב מי מוביל: בכל הודעה של ה-AI יש את הצעד הבא, ואני רק מספק חומר ומחליט.</p>
+
+  <div class="chatwin">
+    <div class="chathead"><span class="dot"></span><b>צ'אט AI</b><span>· מסך חדש</span><span class="ctr"></span></div>
+    <div class="chat">
+
+      <div class="msg me"><div class="av">🙋‍♂️</div><div class="bub">
+        <p>יש לי מסך חדש לבדיקה, טופס פרטים אישיים. תעזור לי למצוא בו באגים?</p><span class="time">09:14</span>
+      </div></div>
+
+      <div class="msg ai later"><div class="av">✨</div><div class="bub">
+        <p>בשמחה. כדי לא לנחש, אני צריך שני דברים: את מבנה הדף, ואת האפיון.</p>
+        <p>נתחיל בדף: תריץ את הסקריפט הזה בקונסול (F12), ותדביק לי את מה שהועתק.</p>
+        <div class="quote">
+          <div class="qbar"><span class="ql">סקריפט סריקה</span><button class="btn small cbtn" data-code="scan">📋 העתק</button><button class="btn small run" data-run="scan">▶ הרץ על הדמו</button></div>
+          <details><summary>הצג את הקוד</summary><pre class="code" data-code="scan"></pre></details>
+          <div class="result" data-result="scan"></div>
+        </div><span class="time">09:14</span>
+      </div></div>
+
+      <div class="msg me later"><div class="av">🙋‍♂️</div><div class="bub">
+        <p>[הדבקתי] 17 אלמנטים.</p><span class="time">09:15</span>
+      </div></div>
+
+      <div class="msg ai later"><div class="av">✨</div><div class="bub">
+        <p>מצוין. אני כבר רואה כפתור בלי שם ומיקוד בלי תווית. אבל עוד לא יודע מה <b>נכון</b>: הדף אומר מה המפתח בנה, לא מה המערכת צריכה לעשות.</p>
+        <p>יש לך אפיון למסך? תעלה אותו לכאן.</p><span class="time">09:15</span>
+      </div></div>
+
+      <div class="msg me later"><div class="av">🙋‍♂️</div><div class="bub">
+        <p>📄 הנה, מעלה את האפיון.</p>
+        <div class="quote copyable">
+          <div class="qbar"><span class="ql">אפיון – מסך פרטים אישיים</span><button class="btn small cbtn">📋 העתק</button><button class="btn small" data-dl="spec-personal-details.md" data-src="specText">⬇ הורדה</button></div>
+          <details><summary>הצג את האפיון</summary><pre class="code ctext" id="specText" dir="rtl" style="direction:rtl;text-align:right;white-space:pre-wrap"># אפיון – מסך פרטים אישיים
+מערכת בקשות מקוונת · גרסה 1.2
+
+## 1. שדות וכללי קלט
+| סעיף | שדה | חובה | כלל | הודעת שגיאה |
+|---|---|---|---|---|
+| 1.1 | שם פרטי | כן | טקסט חופשי | יש להזין שם פרטי |
+| 1.2 | שם משפחה | כן | עד 30 תווים | יש להזין שם משפחה |
+| 1.3 | כתובת | כן | טקסט חופשי | יש להזין כתובת |
+| 1.4 | מייל | לא | מבנה מייל תקין | כתובת המייל אינה תקינה |
+| 1.5 | גיל | לא | מספר שלם, 18 עד 120 | הגיל חייב להיות בין 18 ל-120 |
+| 1.6 | תאריך לידה | לא | לא בעתיד | תאריך הלידה אינו תקין |
+| 1.7 | טלפון | לא | ספרות בלבד, מתחיל ב-0, 9 עד 10 ספרות | מספר הטלפון אינו תקין |
+| 1.8 | מיקוד | לא | 7 ספרות בדיוק | מיקוד חייב להכיל 7 ספרות |
+| 1.9 | אישור תנאי שימוש | כן | תיבת סימון | יש לאשר את תנאי השימוש |
+
+## 2. התנהגות המסך
+- 2.1 כששדה שגוי, הודעת השגיאה מסעיף 1 מופיעה ליד השדה, בנוסח שבטבלה.
+- 2.2 לחיצה על &quot;הבא&quot; עם פרטים תקינים מעבירה למסך &quot;אימות SMS&quot;.
+- 2.3 קוד אימות: 6 ספרות. קוד שגוי מציג &quot;הקוד שגוי, נסו שוב&quot;.
+- 2.4 במסך האימות, &quot;חזור&quot; מחזיר למסך הפרטים, והפרטים שמולאו נשמרים.
+- 2.5 אחרי אימות מוצג &quot;הבקשה נקלטה בהצלחה&quot; ומספר אסמכתא.
+
+## 3. נגישות
+- 3.1 לכל שדה ולכל כפתור יש שם שקורא מסך יכול להקריא.</pre></details>
+        </div><span class="time">09:16</span>
+      </div></div>
+
+      <div class="msg ai later"><div class="av">✨</div><div class="bub">
+        <p>קראתי. לפני שאני כותב, שתי שאלות: מותר לי ללחוץ על "הבא" בסביבה הזו? ומה קוד ה-SMS בסביבת הבדיקות?</p><span class="time">09:16</span>
+      </div></div>
+
+      <div class="msg me later"><div class="av">🙋‍♂️</div><div class="bub">
+        <p>מותר, זו סביבת בדיקות. הקוד הוא 123456.</p><span class="time">09:17</span>
+      </div></div>
+
+      <div class="msg ai later"><div class="av">✨</div><div class="bub">
+        <p>הנה סקריפט שבודק את הדף מול כל כלל באפיון: 17 בדיקות, וכל אחת מפנה לסעיף שלה. תריץ ותחזיר לי את הטבלה.</p>
+        <div class="quote">
+          <div class="qbar"><span class="ql">בדיקה מול האפיון</span><button class="btn small cbtn" data-code="speccheck">📋 העתק</button><a class="drag" data-code="speccheck">⭐ גרור למועדפים</a><button class="btn small run" data-run="speccheck">▶ הרץ על הדמו</button></div>
+          <details><summary>הצג את הקוד</summary><pre class="code" data-code="speccheck"></pre></details>
+          <div class="result" data-result="speccheck"></div>
+        </div><span class="time">09:18</span>
+      </div></div>
+
+      <div class="msg me later"><div class="av">🙋‍♂️</div><div class="bub">
+        <p>[הדבקתי] 11 עברו, 6 נכשלו.</p><span class="time">09:19</span>
+      </div></div>
+
+      <div class="msg ai later"><div class="av">✨</div><div class="bub">
+        <p>שישה ממצאים, וארבעה מהם אי אפשר היה למצוא בלי האפיון: כתובת שלא מוגדרת כחובה, תאריך לידה בעתיד, מיקוד שמקבל אותיות, והודעות שגיאה כלליות במקום ליד כל שדה.</p>
+        <p>ניסחתי לך 6 באגים מוכנים ל-TFS, כל אחד עם הסעיף באפיון שהוא סותר. לבאג של "חזור" חסר לי צילום מסך. תצרף אותו?</p><span class="time">09:19</span>
+      </div></div>
+
+      <div class="msg me later"><div class="av">🙋‍♂️</div><div class="bub">
+        <p>ואפשר לשמור את זה, שירוץ שוב בגרסה הבאה?</p><span class="time">09:21</span>
+      </div></div>
+
+      <div class="msg ai later"><div class="av">✨</div><div class="bub">
+        <p>כן, בשתי דרכים: סימנייה במועדפים, שכל אחד בצוות מריץ בלחיצה. ובדיקת Playwright, שרצה לבד בכל גרסה.</p>
+        <p>אני ממליץ על שתיהן: הסימנייה לבדיקה מהירה היום, Playwright לרגרסיה. להכין?</p><span class="time">09:21</span>
+      </div></div>
+
+      <div class="msg me later"><div class="av">🙋‍♂️</div><div class="bub">
+        <p>כן.</p><span class="time">09:22</span>
+      </div></div>
+
+      <div class="msg ai later"><div class="av">✨</div><div class="bub">
+        <p>הנה. וכשהאפיון ישתנה, תעלה לי את הגרסה החדשה, ואעדכן את הבדיקות.</p><span class="time">09:22</span>
+      </div></div>
+
+      <div class="typing"><i></i><i></i><i></i></div>
+    </div>
+    <div class="chatctl">
+      <button class="btn primary c-next">המשך ◂</button>
+      <button class="btn small c-all">הצג את כל השיחה</button>
+      <button class="btn small c-reset">מההתחלה ↺</button>
+    </div>
+  </div>
+
+  <p class="epilogue">שימו לב מי הוביל: <span>בכל הודעה שלו היה הצעד הבא. אני רק החלטתי.</span></p>
+</section>
+
+<!-- ===================== מתי מה ===================== -->
+<section id="when">
+  <h2 class="sec"><span class="n">✦</span>מתי מה?</h2>
+  <p class="lead">לא כל דבר צריך AI. בוחרים את המדרגה הכי נמוכה שעושה את העבודה: היא הכי מהירה, הכי צפויה, והכי קלה לתחזוקה.</p>
+  <div class="steps4">
+    <div><span class="n">1</span><b>ידני</b><div class="w">עושים פעם אחת, או בודקים תחושה</div><div class="e">חקירה של מסך חדש</div></div>
+    <div><span class="n">2</span><b>סקריפט</b><div class="w">אותה פעולה, אותה תוצאה, כל פעם</div><div class="e">הסימנייה שממלאת כתובת</div></div>
+    <div><span class="n">3</span><b>אוטומציה</b><div class="w">חוזר שוב ושוב, ורוצים לשמור</div><div class="e">הקלטה בתוסף, ייצוא ל-Playwright</div></div>
+    <div><span class="n">4</span><b>AI</b><div class="w">צריך הבנה, ניסוח או שיקול דעת</div><div class="e">באג, לוגים, הצעות לבדיקות</div></div>
+  </div>
+  <p class="rule">והסוד: <span>ה-AI בונה, הסקריפט רץ.</span> כמעט כל סקריפט בדף הזה נכתב בעזרת AI, אבל רץ בלעדיו.</p>
+</section>
+
 <!-- ===================== 2. ארגז הכלים ===================== -->
 <section id="lab">
-  <h2 class="sec"><span class="n">02</span>ארגז הכלים</h2>
+  <h2 class="sec"><span class="n">03</span>ארגז הכלים</h2>
   <p class="lead">השיחה נגמרה, והסקריפטים נשארו. כולם רצים על דף הדמו שמשמאל, וחלק מהבדיקות בו נכשלות בכוונה. לוחצים ▶ ורואים מה קורה. כל סקריפט אפשר גם להעתיק לקונסול של כל דף אחר, או לגרור למועדפים.</p>
 
   <div class="lab">
@@ -346,7 +493,7 @@
 
 <!-- ===================== 3. התוסף ===================== -->
 <section id="ext">
-  <h2 class="sec"><span class="n">03</span>וכשנמאס להעתיק סקריפטים</h2>
+  <h2 class="sec"><span class="n">04</span>וכשנמאס להעתיק סקריפטים</h2>
   <p class="lead">בשלב מסוים הבנתי שאני מעתיק את אותם סקריפטים כל יום. אז ביקשתי מה-AI לעזור לי לאפיין ולבנות תוסף לכרום שעושה את כל זה בכפתור.</p>
 
   <div class="ext">
@@ -401,7 +548,7 @@
 
 <!-- ===================== 4. עוד דברים ש-AI עושה ===================== -->
 <section id="work">
-  <h2 class="sec"><span class="n">04</span>עוד דברים ש-AI עושה בשבילכם</h2>
+  <h2 class="sec"><span class="n">05</span>עוד דברים ש-AI עושה בשבילכם</h2>
   <p class="lead">לא רק סקריפטים. ככה נראית בקשה טובה, וככה נראית התשובה. הסוד הוא תמיד באותו מקום: להגביל, לדייק, ולבקש פורמט.</p>
 
   <details class="work">
@@ -455,6 +602,38 @@
       </div></div>
     </div>
     <div class="tip">💡 <b>תנו דוגמה לשורה אחת</b> בפורמט שאתם רוצים. מאותו רגע הוא יחזיר את הפורמט הזה בכל פעם.</div>
+    </div>
+  </details>
+
+  <details class="work">
+    <summary>🗄️ שאילתות DB שעובדות בפעם הראשונה</summary>
+    <div class="dbody">
+      <p>ה-AI לא רואה את ה-DB שלכם, אז הוא מנחש שמות של טבלאות ועמודות. במקום לתת לו לנחש, נותנים לו את המפה. מריצים את זה בסביבת הבדיקות ומדביקים לו את התוצאה:</p>
+      <div class="quote copyable">
+        <div class="qbar"><span class="ql">כל הטבלאות והעמודות (מבנה בלבד, בלי נתונים)</span><button class="btn small cbtn">📋 העתק</button></div>
+        <pre class="code ctext">SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, IS_NULLABLE
+FROM INFORMATION_SCHEMA.COLUMNS
+ORDER BY TABLE_NAME, ORDINAL_POSITION;</pre>
+      </div>
+      <p>ובנוסף, את <b>כל התוכן</b> של טבלאות קטנות וקבועות, כמו סטטוסים, סוגי בקשות וערים. את אלה הוא באמת לא יכול לנחש:</p>
+      <div class="quote copyable">
+        <div class="qbar"><span class="ql">טבלה סטטית, במלואה</span><button class="btn small cbtn">📋 העתק</button></div>
+        <pre class="code ctext">SELECT * FROM Statuses;</pre>
+      </div>
+      <div class="chat">
+        <div class="msg me"><div class="av">🙋‍♂️</div><div class="bub copyable">
+          <p class="ctext">הנה מבנה הטבלאות [מדביק], והנה כל טבלת הסטטוסים [מדביק]. תכתוב שאילתה שמוצאת בקשות שתקועות בסטטוס "ממתין לאימות" יותר מיום.</p>
+          <button class="btn small cbtn">📋 העתק</button>
+        </div></div>
+        <div class="msg ai"><div class="av">✨</div><div class="bub">
+          <pre class="code">SELECT a.ApplicationId, a.CreatedAt
+FROM Applications a
+WHERE a.StatusId = 3
+  AND a.CreatedAt &lt; DATEADD(day, -1, GETDATE());</pre>
+          <p>מטבלת הסטטוסים ידעתי ש"ממתין לאימות" הוא 3, אז לא הייתי צריך לנחש.</p>
+        </div></div>
+      </div>
+      <div class="tip">💡 <b>ומשם זה רק משתפר:</b> "מילאתי טופס ולחצתי שמור. תכתוב שאילתה שבודקת שהכל נשמר נכון." או: "תכתוב שאילתה שמנקה את נתוני הבדיקה שיצרתי היום." (את זו קוראים לפני שמריצים.)</div>
     </div>
   </details>
 
@@ -517,8 +696,8 @@
 
 <!-- ===================== 5. טיפים ===================== -->
 <section id="tips" class="tips">
-  <h2 class="sec"><span class="n">05</span>טיפים</h2>
-  <p class="lead">שבעה דברים שהייתי רוצה שמישהו יגיד לי ביום הראשון.</p>
+  <h2 class="sec"><span class="n">06</span>טיפים</h2>
+  <p class="lead">שמונה דברים שהייתי רוצה שמישהו יגיד לי ביום הראשון.</p>
 
   <details>
     <summary>🎯 תבקשו שיתחקר אתכם</summary>
@@ -552,6 +731,20 @@
   </details>
 
   <details>
+    <summary>🗺️ תנו לו את המפה</summary>
+    <div class="dbody">
+      <p>הוא לא רואה את המערכת שלכם. כל מה שהוא לא יודע, הוא מנחש. אז תנו לו:</p>
+      <ul>
+        <li>את מבנה הדף (סקריפט הסריקה)</li>
+        <li>את מבנה ה-DB, ואת התוכן של טבלאות קטנות וקבועות</li>
+        <li>את הסוואגר</li>
+        <li>שלוש שורות לוג לדוגמה</li>
+      </ul>
+      <p>ככה הוא מפסיק לנחש, ומתחיל לדייק.</p>
+    </div>
+  </details>
+
+  <details>
     <summary>🔎 תשאלו מה הוא לא בדק</summary>
     <div class="dbody">
       <div class="say copyable"><span class="ctext">"מה הבדיקה הזו לא בודקת? ומה יכול להיות לא נכון בתשובה שלך?"</span> <button class="btn small cbtn">📋 העתק</button></div>
@@ -560,9 +753,11 @@
   </details>
 
   <details>
-    <summary>⏱️ עשרים דקות, ואז שיחה חדשה</summary>
+    <summary>🔄 מתחיל להשתבש? שיחה חדשה</summary>
     <div class="dbody">
-      <p>אם השיחה מתחילה להסתובב במעגלים, לא ממשיכים להתעקש. פותחים שיחה חדשה ומדביקים בה בכמה שורות את מה שכבר ידוע.</p>
+      <p>בשיחה ארוכה מדי, ה-AI מתחיל לשכוח מה סיכמתם בהתחלה. הוא חוזר על טעויות, או מתקן דבר אחד ושובר דבר אחר. זה הסימן.</p>
+      <div class="say copyable"><span class="ctext">"תסכם לי בכמה שורות את כל מה שסיכמנו עד עכשיו, כדי שאפתח שיחה חדשה."</span> <button class="btn small cbtn">📋 העתק</button></div>
+      <p>פותחים שיחה חדשה, מדביקים את הסיכום, וממשיכים משם.</p>
     </div>
   </details>
 
@@ -993,6 +1188,206 @@ javascript:void(document.querySelector('[name="address"]').value="Jerusalem hana
   return rows;
 })()
 </script>
+<script type="text/plain" id="code-interview">
+(async () => {
+  const BLOCK = 'נחסם', ACCEPT = 'מתקבל', UNKNOWN = 'לא יודע';
+  const OPTIONS = [BLOCK, ACCEPT, UNKNOWN];
+  const ltr = t => '\u2066' + t + '\u2069';
+  const visible = el => el.offsetParent !== null;
+  const nameOf = el => ((el.labels && el.labels[0] ? el.labels[0].innerText : el.placeholder || el.name || '') + '').replace('*', '').replace(/\s+/g, ' ').trim();
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const setValue = (el, v) => {
+    const setter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(el), 'value');
+    if (setter && setter.set) setter.set.call(el, v); else el.value = v;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+  const validValue = el => {
+    const k = (el.name + ' ' + el.id + ' ' + el.placeholder).toLowerCase();
+    if (el.type === 'email') return 'test@example.com';
+    if (el.type === 'tel') return '0501234567';
+    if (el.type === 'date') return '1990-01-01';
+    if (el.type === 'number') { let n = 30; if (el.min !== '') n = Math.max(n, +el.min); if (el.max !== '') n = Math.min(n, +el.max); return String(n); }
+    if (/zip|postal|מיקוד/.test(k)) return '9100001';
+    return 'בדיקה';
+  };
+
+  const form = [...document.forms].find(visible) || document;
+  const fields = [...form.querySelectorAll('input, textarea')].filter(el => visible(el) && !['checkbox', 'radio', 'submit', 'button', 'hidden', 'date', 'file'].includes(el.type));
+  const submit = [...form.querySelectorAll('button[type=submit], input[type=submit]')].find(visible);
+
+  /* שלב 1: בונים את השאלות מתוך הדף. אותו דף = אותן שאלות */
+  const checks = [];
+  fields.forEach(el => {
+    const n = nameOf(el);
+    const add = (what, value, def) => checks.push({ el, value, q: n + ': ' + what, d: def, options: OPTIONS });
+    if (el.required) add('מה צריך לקרות כשהשדה ריק?', '', BLOCK);
+    if (el.type === 'email') add('מה צריך לקרות עם מייל בלי @ (' + ltr('test.example.com') + ')?', 'test.example.com', BLOCK);
+    if (el.type === 'number' && el.min !== '') add('מה צריך לקרות עם ' + (+el.min - 1) + '?', String(+el.min - 1), BLOCK);
+    if (el.type === 'number' && el.max !== '') add('מה צריך לקרות עם ' + (+el.max + 1) + '?', String(+el.max + 1), BLOCK);
+    if (el.pattern) add('מה צריך לקרות עם אותיות (' + ltr('abc') + ')?', 'abc', BLOCK);
+    const free = !el.required && !el.pattern && !(el.maxLength > 0) && ['text', 'textarea', 'search'].includes(el.type || 'text');
+    if (free) add('לשדה אין שום הגבלה. מה צריך לקרות עם אותיות וסימנים (' + ltr('abc!@#') + ')?', 'abc!@#', UNKNOWN);
+  });
+  const questions = checks.map(c => ({ q: c.q, d: c.d, options: c.options }));
+  if (submit) questions.push({ q: 'אחרי מילוי תקין ולחיצה על "' + submit.innerText.trim() + '", איזה טקסט אמור להופיע? (ריק = לא לבדוק)', d: '' });
+
+  /* שלב 2: שואלים. בדף ההרצאה יש חלון שאלות; בקונסול של כל אתר אחר, prompt רגיל */
+  let answers;
+  if (typeof window.__qaAsk === 'function') {
+    answers = await window.__qaAsk(questions);
+    if (!answers) return [];
+  } else {
+    answers = questions.map(x => {
+      const hint = x.options ? '\n(' + x.options.join(' / ') + ')' : '';
+      const a = prompt(x.q + hint, x.d);
+      return a === null ? x.d : a.trim();
+    });
+  }
+
+  /* שלב 3: מריצים את הבדיקות לפי מה שענית */
+  const rows = [];
+  const add = (test, said, happened, result) => rows.push({ 'בדיקה': test, 'מה אמרת': said, 'מה קרה': happened, 'תוצאה': result });
+  checks.forEach((c, i) => {
+    const said = answers[i] || UNKNOWN;
+    const original = c.el.value;
+    setValue(c.el, c.value);
+    const blocked = !c.el.checkValidity();
+    setValue(c.el, original);
+    const happened = blocked ? BLOCK : ACCEPT;
+    if (said === UNKNOWN) add(c.q, said, happened, 'שאלה פתוחה');
+    else add(c.q, said, happened, said === happened ? 'עבר' : 'נכשל');
+  });
+
+  const expected = submit ? (answers[checks.length] || '').trim() : '';
+  if (submit && expected) {
+    form.querySelectorAll('input, textarea').forEach(el => {
+      if (!visible(el) || ['submit', 'button', 'hidden'].includes(el.type)) return;
+      if (el.type === 'checkbox') { if (el.required && !el.checked) el.click(); return; }
+      setValue(el, validValue(el));
+    });
+    const label = submit.innerText.trim();
+    submit.click();
+    let ok = false;
+    for (let t = 0; t < 40 && !ok; t++) { await wait(100); ok = document.body.innerText.includes(expected); }
+    add('מילוי תקין ולחיצה על "' + label + '"', expected, ok ? 'הופיע' : 'לא הופיע', ok ? 'עבר' : 'נכשל');
+  }
+
+  console.table(rows);
+  const open = rows.filter(r => r['תוצאה'] === 'שאלה פתוחה').map(r => '- ' + r['בדיקה'] + ' (בפועל: ' + r['מה קרה'] + ')');
+  if (open.length) console.log('שאלות פתוחות לאנליסט או למפתח:\n' + open.join('\n'));
+  return rows;
+})()
+</script>
+<script type="text/plain" id="code-speccheck">
+(async () => {
+  /* נכתב מתוך: אפיון – מסך פרטים אישיים, גרסה 1.2. כל בדיקה מפנה לסעיף שלה */
+  const SMS_CODE = '123456';
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const visible = el => !!el && el.offsetParent !== null;
+  const text = () => document.body.innerText;
+  const waitForText = async (t, ms = 4000) => { const s = Date.now(); while (Date.now() - s < ms) { if (text().includes(t)) return true; await wait(100); } return false; };
+  const setValue = (el, v) => {
+    const setter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(el), 'value');
+    if (setter && setter.set) setter.set.call(el, v); else el.value = v;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+  const field = name => [...document.querySelectorAll('input, textarea, select')].find(el => {
+    const label = el.labels && el.labels[0] ? el.labels[0].innerText : '';
+    return (label + ' ' + (el.placeholder || '')).replace('*', '').includes(name);
+  });
+  const rejects = (el, value) => {
+    const original = el.value;
+    setValue(el, value);
+    const r = !el.checkValidity();
+    setValue(el, original);
+    return r;
+  };
+  const button = t => [...document.querySelectorAll('button')].find(b => visible(b) && b.innerText.trim() === t);
+
+  const errors = [];
+  const onErr = e => errors.push(e.message);
+  window.addEventListener('error', onErr);
+
+  const rows = [];
+  const add = (section, test, expected, actual, ok) => rows.push({ 'סעיף': section, 'בדיקה': test, 'האפיון אומר': expected, 'בפועל': actual, 'תוצאה': ok ? 'עבר' : 'נכשל' });
+  const check = (section, name, test, value, expected) => {
+    const el = field(name);
+    if (!el) return add(section, name + ': ' + test, expected, 'השדה לא נמצא', false);
+    const r = rejects(el, value);
+    add(section, name + ': ' + test, expected, r ? 'נחסם' : 'התקבל', r);
+  };
+
+  try {
+    /* 1. שדות וכללי קלט */
+    check('1.1', 'שם פרטי', 'ריק', '', 'נחסם');
+    check('1.2', 'שם משפחה', 'ריק', '', 'נחסם');
+    const last = field('שם משפחה');
+    add('1.2', 'שם משפחה: עד 30 תווים', 'מוגבל ל-30', last && last.maxLength > 0 ? 'מוגבל ל-' + last.maxLength : 'אין הגבלה', !!last && last.maxLength === 30);
+    check('1.3', 'כתובת', 'ריקה', '', 'נחסם');
+    check('1.4', 'מייל', 'בלי @', 'test.example.com', 'נחסם');
+    check('1.5', 'גיל', '17', '17', 'נחסם');
+    check('1.5', 'גיל', '121', '121', 'נחסם');
+    const nextYear = (new Date().getFullYear() + 1) + '-01-01';
+    check('1.6', 'תאריך לידה', 'בעתיד (' + nextYear + ')', nextYear, 'נחסם');
+    check('1.7', 'טלפון', 'עם אותיות', 'abc', 'נחסם');
+    check('1.8', 'מיקוד', 'עם אותיות', 'abcde', 'נחסם');
+    const terms = field('תנאי השימוש');
+    add('1.9', 'תנאי שימוש: לא מסומן', 'נחסם', terms && !terms.checkValidity() ? 'נחסם' : 'התקבל', !!terms && !terms.checkValidity());
+
+    /* 3. נגישות: לכל שדה ולכל כפתור יש שם */
+    const noLabel = [...document.querySelectorAll('input, select, textarea')].filter(el => el.type !== 'hidden' && !(el.labels && el.labels.length) && !el.getAttribute('aria-label')).map(el => el.placeholder || el.name);
+    const noName = [...document.querySelectorAll('button')].filter(b => !b.innerText.trim() && !b.getAttribute('aria-label') && !b.title).length;
+    const a11yIssues = [...noLabel.map(n => 'שדה בלי תווית: ' + n), ...(noName ? [noName + ' כפתורים בלי שם'] : [])];
+    add('3.1', 'שם נגיש לכל שדה וכפתור', 'לכולם יש שם', a11yIssues.join(', ') || 'לכולם יש שם', a11yIssues.length === 0);
+
+    /* 2. התנהגות המסך */
+    const next = button('הבא');
+    next.click();
+    await wait(400);
+    const perField = text().includes('יש להזין שם פרטי');
+    const shown = [...document.querySelectorAll('[role=alert]')].filter(visible).map(e => e.innerText.trim()).join(' | ');
+    add('2.1', 'הודעת שגיאה ליד השדה', '״יש להזין שם פרטי״ ליד השדה', perField ? 'מופיעה' : 'רק: ' + (shown || 'אין הודעה'), perField);
+
+    const valid = { 'שם פרטי': 'ישראל', 'שם משפחה': 'בדיקה', 'כתובת': 'הנשיא 1, ירושלים', 'מייל': 'test@example.com', 'גיל': '30', 'תאריך לידה': '1990-01-01', 'טלפון': '0501234567', 'מיקוד': '9100001' };
+    Object.entries(valid).forEach(([n, v]) => { const el = field(n); if (el) setValue(el, v); });
+    if (terms && !terms.checkValidity()) terms.click();
+    next.click();
+    const onSms = await waitForText('אימות SMS');
+    add('2.2', '״הבא״ עם פרטים תקינים', 'מסך ״אימות SMS״', onSms ? 'הגיע למסך האימות' : 'נשאר במסך הפרטים', onSms);
+
+    if (onSms) {
+      const code = field('קוד אימות');
+      setValue(code, '000000');
+      button('אמת').click();
+      const wrong = await waitForText('הקוד שגוי, נסו שוב');
+      add('2.3', 'קוד שגוי', '״הקוד שגוי, נסו שוב״', wrong ? 'ההודעה הופיעה' : 'אין הודעה', wrong);
+
+      const before = errors.length;
+      button('חזור').click();
+      await wait(600);
+      const first = field('שם פרטי');
+      const back = visible(first) && first.value === 'ישראל';
+      add('2.4', '״חזור״ ממסך האימות', 'חזרה לפרטים, והפרטים נשמרים', back ? 'חזר, הפרטים נשמרו' : 'לא קרה כלום' + (errors.length > before ? '. שגיאה: ' + errors[errors.length - 1] : ''), back);
+
+      if (!back) {
+        setValue(code, SMS_CODE);
+        button('אמת').click();
+        const done = await waitForText('הבקשה נקלטה בהצלחה');
+        add('2.5', 'קוד נכון', '״הבקשה נקלטה בהצלחה״ ואסמכתא', done ? 'הופיע, עם אסמכתא' : 'לא הופיע', done && /QA-\d/.test(text()));
+      }
+    }
+  } finally {
+    window.removeEventListener('error', onErr);
+  }
+  rows.sort((a, b) => a['סעיף'].localeCompare(b['סעיף'], undefined, { numeric: true }));
+  console.table(rows);
+  const failed = rows.filter(r => r['תוצאה'] === 'נכשל').length;
+  console.log('לפי האפיון: ' + (rows.length - failed) + ' עברו, ' + failed + ' נכשלו');
+  return rows;
+})()
+</script>
 <script>window.__DEMO_HTML__ = "<!doctype html>\n<html lang=\"he\" dir=\"rtl\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>מערכת בקשות מקוונת · סביבת בדיקות<\/title>\n<style>\n  * { box-sizing: border-box; }\n  [hidden] { display: none !important; }\n  body { margin: 0; font-family: system-ui, \"Segoe UI\", Arial, sans-serif; background: #eef1f6; color: #1d2330; }\n  .ribbon { background: repeating-linear-gradient(45deg, #ffcf3f, #ffcf3f 12px, #1d2330 12px, #1d2330 24px); height: 6px; }\n  .topbar { display: flex; align-items: center; gap: 12px; background: #fff; padding: 12px 20px; border-bottom: 1px solid #dde2ea; }\n  .logo { width: 34px; height: 34px; }\n  .title { font-size: 20px; font-weight: 800; }\n  .env { margin-right: auto; background: #1d2330; color: #ffcf3f; font-weight: 800; font-size: 12px; padding: 3px 10px; border-radius: 99px; }\n  .stepper { display: flex; gap: 8px; justify-content: center; margin: 18px 0 0; }\n  .stepper span { background: #fff; border: 1px solid #d5dbe5; color: #6b7385; padding: 5px 14px; border-radius: 99px; font-size: 14px; }\n  .stepper span.on { background: #2457d6; border-color: #2457d6; color: #fff; }\n  main { max-width: 640px; margin: 16px auto 30px; background: #fff; border-radius: 14px; box-shadow: 0 6px 24px #1d233014; padding: 22px 26px; }\n  h2 { margin: 0 0 14px; font-size: 21px; }\n  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }\n  .field label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 4px; }\n  .field input { width: 100%; padding: 9px 10px; border: 1px solid #c8cfdb; border-radius: 8px; font-size: 15px; font-family: inherit; }\n  .field input.invalid { border-color: #d63b3b; background: #fff5f5; }\n  .wide { grid-column: 1 / -1; }\n  .check { display: flex; gap: 8px; align-items: center; font-size: 14px; margin-top: 14px; }\n  .fine { font-size: 10px; color: #8a92a3; margin: 10px 0 0; }\n  .err { margin-top: 12px; background: #fde8e8; color: #9b1c1c; border-radius: 8px; padding: 9px 12px; font-size: 14px; }\n  .actions { display: flex; gap: 10px; align-items: center; margin-top: 18px; }\n  button { font-family: inherit; font-size: 15px; border-radius: 8px; padding: 9px 18px; cursor: pointer; border: 1px solid #c8cfdb; background: #fff; }\n  button.primary { background: #2457d6; border-color: #2457d6; color: #fff; font-weight: 700; }\n  button.narrow { width: 66px; padding: 9px 6px; overflow: hidden; white-space: nowrap; }\n  button.icon { width: 22px; height: 22px; padding: 2px; margin-right: auto; display: grid; place-items: center; border: none; background: transparent; }\n  .toast { margin-top: 12px; font-size: 14px; color: #1e7b3a; }\n  .success { width: 64px; height: 64px; border-radius: 50%; background: #1e7b3a; color: #fff; font-size: 34px; display: grid; place-items: center; margin: 6px auto 14px; }\n  #step3 { text-align: center; }\n  footer { text-align: center; color: #8a92a3; font-size: 13px; padding-bottom: 24px; }\n  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }\n<\/style>\n<\/head>\n<body>\n<div class=\"ribbon\"><\/div>\n<div class=\"topbar\">\n  <img src=\"assets/logo.png\" class=\"logo\">\n  <div class=\"title\">מערכת בקשות מקוונת<\/div>\n  <span class=\"env\">TEST<\/span>\n<\/div>\n\n<div class=\"stepper\" id=\"stepper\">\n  <span class=\"on\">1 · פרטים<\/span><span>2 · אימות<\/span><span>3 · סיום<\/span>\n<\/div>\n\n<main>\n  <section id=\"step1\">\n    <h2>פרטים אישיים<\/h2>\n    <form id=\"form1\" novalidate>\n      <div class=\"grid\">\n        <div class=\"field\"><label for=\"firstName\">שם פרטי *<\/label><input id=\"firstName\" name=\"firstName\" required><\/div>\n        <div class=\"field\"><label for=\"lastName\">שם משפחה *<\/label><input id=\"lastName\" name=\"lastName\" required maxlength=\"30\"><\/div>\n        <div class=\"field wide\"><label for=\"address\">כתובת<\/label><input id=\"address\" name=\"address\"><\/div>\n        <div class=\"field\"><label for=\"email\">מייל<\/label><input id=\"email\" name=\"email\" type=\"email\"><\/div>\n        <div class=\"field\"><label for=\"age\">גיל<\/label><input id=\"age\" name=\"age\" type=\"number\" min=\"18\" max=\"120\"><\/div>\n        <div class=\"field\"><label for=\"birthDate\">תאריך לידה<\/label><input id=\"birthDate\" name=\"birthDate\" type=\"date\"><\/div>\n        <div class=\"field\"><label for=\"phone\">טלפון<\/label><input id=\"phone\" name=\"phone\" type=\"tel\" pattern=\"0\\d{8,9}\"><\/div>\n        <div class=\"field\"><input id=\"zip\" name=\"zip\" placeholder=\"מיקוד\"><\/div>\n      <\/div>\n      <label class=\"check\"><input type=\"checkbox\" id=\"terms\" name=\"terms\" required> אני מאשר/ת את <a href=\"#\">תנאי השימוש<\/a><\/label>\n      <p class=\"fine\">* שדות חובה<\/p>\n      <div class=\"err\" role=\"alert\" id=\"err1\" hidden><\/div>\n      <div class=\"actions\">\n        <button type=\"submit\" class=\"primary\">הבא<\/button>\n        <button type=\"button\" class=\"narrow\" id=\"saveDraft\">שמור כטיוטה<\/button>\n        <button type=\"button\" class=\"icon\" id=\"delDraft\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#9b1c1c\" stroke-width=\"2\"><path d=\"M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14\"/><\/svg><\/button>\n      <\/div>\n      <div class=\"toast\" id=\"toast1\" hidden><\/div>\n    <\/form>\n  <\/section>\n\n  <section id=\"step2\" hidden>\n    <h2>אימות SMS<\/h2>\n    <p>שלחנו קוד בן 6 ספרות לטלפון שהזנת.<\/p>\n    <form id=\"form2\" novalidate>\n      <div class=\"field\"><label for=\"smsCode\">קוד אימות<\/label><input id=\"smsCode\" name=\"smsCode\" inputmode=\"numeric\" maxlength=\"6\" required pattern=\"\\d{6}\"><\/div>\n      <p class=\"fine\">בסביבת הבדיקות הקוד הוא 123456<\/p>\n      <div class=\"err\" role=\"alert\" id=\"err2\" hidden><\/div>\n      <div class=\"actions\">\n        <button type=\"submit\" class=\"primary\">אמת<\/button>\n        <button type=\"button\" id=\"resend\">שלח שוב קוד<\/button>\n        <button type=\"button\" id=\"back\">חזור<\/button>\n      <\/div>\n      <div class=\"toast\" id=\"toast2\" hidden><\/div>\n    <\/form>\n  <\/section>\n\n  <section id=\"step3\" hidden>\n    <div class=\"success\">✓<\/div>\n    <h2>הבקשה נקלטה בהצלחה<\/h2>\n    <p>מספר אסמכתא: <b id=\"ref\">QA-2026-0042<\/b><\/p>\n  <\/section>\n<\/main>\n\n<footer>סביבת בדיקות · כל הנתונים בדף הם נתוני דמו<\/footer>\n\n<script>\n/* ===== שרת מדומה: כל קריאה ל-/api/ נענית מכאן, בלי שרת אמיתי ===== */\n(() => {\n  const realFetch = window.fetch.bind(window);\n  const json = (obj, status = 200) => ({ body: JSON.stringify(obj), status, type: 'application/json' });\n  const LOGS = [\n    '2026-11-19 07:41:02.114 INFO  [gateway]       corr=a1f3 GET /api/health 200 118ms',\n    '2026-11-19 07:41:03.520 INFO  [auth-service]  corr=b7c0 token issued user=1001',\n    '2026-11-19 07:41:05.002 INFO  [gateway]       corr=c2d9 GET /api/user/me 200 176ms',\n    '2026-11-19 07:41:08.931 WARN  [auth-service]  corr=b7c0 token expires in 120s',\n    '2026-11-19 07:41:11.407 INFO  [gateway]       corr=d4e1 GET /api/cities 200 1402ms',\n    '2026-11-19 07:41:11.409 WARN  [cities-service] corr=d4e1 slow query 1390ms (limit 1000ms)',\n    '2026-11-19 07:41:12.230 ERROR [orders-service] corr=c7f2 DB timeout after 3000ms (pool exhausted)',\n    '2026-11-19 07:41:12.231 ERROR [gateway]       corr=c7f2 GET /api/orders 500 3004ms',\n    '2026-11-19 07:41:12.240 ERROR [orders-service] corr=c7f2 retry 1 failed: DB timeout',\n    '2026-11-19 07:41:14.118 INFO  [gateway]       corr=e9a0 POST /api/applications 201 212ms',\n    '2026-11-19 07:41:15.877 INFO  [sms-service]   corr=e9a0 code sent to 05*******67',\n    '2026-11-19 07:41:19.302 ERROR [orders-service] corr=f013 DB timeout after 3000ms (pool exhausted)',\n    '2026-11-19 07:41:19.305 ERROR [gateway]       corr=f013 GET /api/orders 500 3007ms',\n    '2026-11-19 07:41:21.660 INFO  [sms-service]   corr=e9a0 code verified',\n    '2026-11-19 07:41:22.014 WARN  [orders-service] corr=-    connection pool at 100% (20/20)',\n    '2026-11-19 07:41:25.440 ERROR [notify-service] corr=e9a0 email template \"approved\" not found',\n    '2026-11-19 07:41:26.001 INFO  [gateway]       corr=a8b2 GET /api/health 200 121ms',\n    '2026-11-19 07:41:29.774 ERROR [orders-service] corr=a9d6 DB timeout after 3000ms (pool exhausted)',\n    '2026-11-19 07:41:29.776 ERROR [gateway]       corr=a9d6 GET /api/orders 500 3002ms',\n    '2026-11-19 07:41:31.090 INFO  [gateway]       corr=b0c1 GET /api/user/me 200 181ms'\n  ].join('\\n');\n  const SPEC = {\n    openapi: '3.0.0',\n    info: { title: 'מערכת בקשות · API לבדיקות', version: '1.4.0' },\n    servers: [{ url: '' }],\n    paths: {\n      '/api/health': { get: { summary: 'בדיקת חיים' } },\n      '/api/user/me': { get: { summary: 'המשתמש המחובר' } },\n      '/api/user/{id}': { get: { summary: 'משתמש לפי מזהה' } },\n      '/api/cities': { get: { summary: 'רשימת ערים' } },\n      '/api/orders': { get: { summary: 'הזמנות' } },\n      '/api/applications': { post: { summary: 'יצירת בקשה' } },\n      '/api/sms/verify': { post: { summary: 'אימות קוד SMS' } }\n    }\n  };\n  const routes = {\n    'GET openapi.json': () => [json(SPEC), 60],\n    'GET health': () => [json({ status: 'UP' }), 120],\n    'GET user/me': () => [json({ id: 1001, name: 'ישראל בדיקה' }), 180],\n    'GET cities': () => [json(['ירושלים', 'תל אביב', 'חיפה', 'באר שבע']), 1400],\n    'GET orders': () => [json({ error: 'Internal Server Error', corr: 'c7f2' }, 500), 300],\n    'GET logs': () => [{ body: LOGS, status: 200, type: 'text/plain' }, 90],\n    'POST applications': () => [json({ id: 'APP-0042' }, 201), 200],\n    'POST sms/verify': (body) => {\n      let code = '';\n      try { code = JSON.parse(body || '{}').code; } catch (e) { /* גוף לא תקין */ }\n      return [code === '123456' ? json({ ok: true }) : json({ ok: false, error: 'קוד שגוי' }, 400), 250];\n    }\n  };\n  window.fetch = async (input, init = {}) => {\n    const url = new URL(typeof input === 'string' ? input : input.url, document.baseURI);\n    const i = url.pathname.indexOf('/api/');\n    if (i === -1) return realFetch(input, init);\n    const method = (init.method || 'GET').toUpperCase();\n    const key = method + ' ' + url.pathname.slice(i + 5);\n    const handler = routes[key];\n    const [res, delay] = handler ? handler(init.body) : [json({ error: 'Not Found' }, 404), 50];\n    await new Promise((r) => setTimeout(r, delay));\n    return new Response(res.body, { status: res.status, headers: { 'Content-Type': res.type } });\n  };\n})();\n\n/* ===== התנהגות הטופס ===== */\nconst $ = (s) => document.querySelector(s);\nconst stepper = [...document.querySelectorAll('#stepper span')];\n\nfunction goTo(n) {\n  ['#step1', '#step2', '#step3'].forEach((s, i) => { $(s).hidden = i !== n - 1; });\n  stepper.forEach((s, i) => s.classList.toggle('on', i === n - 1));\n}\n\nfunction validate(form, errBox) {\n  const bad = [...form.elements].filter((el) => el.willValidate && !el.checkValidity());\n  [...form.elements].forEach((el) => el.classList && el.classList.toggle('invalid', bad.includes(el)));\n  errBox.hidden = bad.length === 0;\n  errBox.textContent = bad.length ? 'יש לתקן ' + bad.length + ' שדות לפני שממשיכים' : '';\n  return bad.length === 0;\n}\n\n$('#form1').addEventListener('submit', async (e) => {\n  e.preventDefault();\n  if (!validate(e.target, $('#err1'))) return;\n  await fetch('/api/applications', { method: 'POST', body: JSON.stringify({ name: $('#firstName').value }) });\n  goTo(2);\n  $('#smsCode').focus();\n});\n\n$('#saveDraft').addEventListener('click', () => {\n  $('#toast1').hidden = false;\n  $('#toast1').textContent = 'הטיוטה נשמרה ✓';\n});\n\n$('#delDraft').addEventListener('click', () => {\n  $('#form1').reset();\n  $('#toast1').hidden = false;\n  $('#toast1').textContent = 'הטיוטה נמחקה';\n});\n\n$('#form2').addEventListener('submit', async (e) => {\n  e.preventDefault();\n  if (!validate(e.target, $('#err2'))) return;\n  const r = await fetch('/api/sms/verify', { method: 'POST', body: JSON.stringify({ code: $('#smsCode').value }) });\n  if (!r.ok) {\n    $('#err2').hidden = false;\n    $('#err2').textContent = 'הקוד שגוי, נסו שוב';\n    return;\n  }\n  goTo(3);\n});\n\n$('#resend').addEventListener('click', () => {\n  $('#toast2').hidden = false;\n  $('#toast2').textContent = 'קוד חדש נשלח ✓';\n});\n\n/* באג מתוכנן: הכפתור \"חזור\" מחפש אלמנט שלא קיים */\n$('#back').addEventListener('click', () => {\n  document.querySelector('#stepper .current').classList.remove('on');\n  goTo(1);\n});\n\n/* תקלות \"רקע\" מתוכננות, כדי שיהיה מה למצוא בלוגים וברשת */\nconsole.error('[analytics] init failed: missing config key \"trackingId\"');\nfetch('config/runtime.json').catch(() => console.warn('[config] runtime.json not found, using defaults'));\n<\/script>\n<\/body>\n<\/html>\n";</script>
 
 <script>
@@ -1041,7 +1436,15 @@ const TOOLS = [
   { id: 'auto', icon: '🤖', title: 'הבודק האוטומטי', tag: 'הכל', reset: true,
     desc: 'הסקריפט מהשיחה. קורא את הדף ובודק שדות, נגישות, מראה ורשת בבת אחת. לא לוחץ על כלום.',
     demo: 'חצי מהטבלה אדומה, בדיוק כמו בשיחה.',
-    ask: 'כתוב סקריפט שקורא את ההגבלות שכבר כתובות בדף ובונה מהן בדיקות, בלי ללחוץ על שום דבר.' }
+    ask: 'כתוב סקריפט שקורא את ההגבלות שכבר כתובות בדף ובונה מהן בדיקות, בלי ללחוץ על שום דבר.' },
+  { id: 'interview', icon: '🧑‍🏫', title: 'המתחקר', tag: 'הכל', reset: true,
+    desc: 'סורק את הדף ושואל אותך על כל שדה מה אמור לקרות: ריק, גבולות, אותיות. השאלות נגזרות מהדף, בלי AI. מהתשובות שלך הוא בונה בדיקות ומריץ אותן. כל "לא יודע" הופך לשאלה פתוחה לאנליסט.',
+    demo: 'ענו "נחסם" על המיקוד ותמצאו באג. השאירו "לא יודע" ותקבלו שאלה פתוחה.',
+    ask: 'כתוב סקריפט שסורק את הטופס, שואל אותי על כל שדה מה צריך לקרות במקרי קצה (נחסם / מתקבל / לא יודע), ובונה מהתשובות שלי בדיקות.' },
+  { id: 'speccheck', icon: '📄', title: 'בדיקה מול האפיון', tag: 'הכל', reset: true,
+    desc: 'הסקריפט מהשיחה השנייה. ה-AI כתב אותו מתוך האפיון: 17 בדיקות, וכל שורה בתוצאה מפנה לסעיף באפיון שהיא בודקת. בלי AI בזמן ההרצה.',
+    demo: '11 עוברות ו-6 נכשלות. ארבעה מהבאגים אי אפשר למצוא בלי האפיון.',
+    ask: 'הנה האפיון [מעלה]. כתוב סקריפט שבודק את הדף מול כל כלל באפיון, ושכל שורה בתוצאה תפנה לסעיף שלה.' }
 ];
 
 const codeOf = (id) => (document.getElementById('code-' + id) || { textContent: '' }).textContent.trim();
@@ -1092,7 +1495,8 @@ async function copyText(text, btn) {
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('.cbtn');
   if (!btn) return;
-  const text = btn.dataset.code ? codeOf(btn.dataset.code) : btn.closest('.copyable').querySelector('.ctext').innerText.replace(/^"|"$/g, '');
+  const el = btn.dataset.code ? null : btn.closest('.copyable').querySelector('.ctext');
+  const text = btn.dataset.code ? codeOf(btn.dataset.code) : ((el.innerText || '').trim() ? el.innerText : el.textContent).trim().replace(/^"|"$/g, '');
   copyText(text, btn);
 });
 
@@ -1109,7 +1513,7 @@ const demoReady = loadDemo();
 document.getElementById('resetDemo').addEventListener('click', loadDemo);
 
 function pillFor(v) {
-  const cls = v === 'עבר' ? 'pass' : v === 'נכשל' ? 'fail' : 'skip';
+  const cls = v === 'עבר' ? 'pass' : v === 'נכשל' ? 'fail' : v === 'שאלה פתוחה' ? 'open' : 'skip';
   return `<span class="pill ${cls}">${esc(v)}</span>`;
 }
 function render(res, box) {
@@ -1123,7 +1527,7 @@ function render(res, box) {
   const cols = [...new Set(res.flatMap((r) => Object.keys(r)))];
   const count = (v) => res.filter((r) => r['תוצאה'] === v).length;
   const sum = cols.includes('תוצאה')
-    ? `<div class="sum"><span class="pill pass">✓ ${count('עבר')} עברו</span><span class="pill fail">✗ ${count('נכשל')} נכשלו</span>${count('דילוג') ? `<span class="pill skip">⏭ ${count('דילוג')} דילוג</span>` : ''}</div>`
+    ? `<div class="sum"><span class="pill pass">✓ ${count('עבר')} עברו</span><span class="pill fail">✗ ${count('נכשל')} נכשלו</span>${count('דילוג') ? `<span class="pill skip">⏭ ${count('דילוג')} דילוג</span>` : ''}${count('שאלה פתוחה') ? `<span class="pill open">❓ ${count('שאלה פתוחה')} שאלות פתוחות</span>` : ''}</div>`
     : '';
   box.innerHTML = sum + '<table class="rt"><tr>' + cols.map((c) => `<th>${esc(c)}</th>`).join('') + '</tr>' +
     res.map((r, i) => `<tr style="animation-delay:${i * 40}ms">` + cols.map((c) => `<td${String(r[c] ?? '').length < 12 ? ' class="nw"' : ''}>${c === 'תוצאה' ? pillFor(r[c]) : esc(r[c])}</td>`).join('') + '</tr>').join('') + '</table>';
@@ -1140,7 +1544,9 @@ function askUser(questions) {
   return new Promise((resolve) => {
     const modal = document.getElementById('askModal');
     const box = document.getElementById('askFields');
-    box.innerHTML = questions.map((x, i) => `<label for="ask${i}">${esc(x.q)}</label><input id="ask${i}" value="${esc(x.d)}">`).join('');
+    box.innerHTML = questions.map((x, i) => `<label for="ask${i}">${esc(x.q)}</label>` + (x.options
+      ? `<select id="ask${i}">${x.options.map((o) => `<option${o === x.d ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select>`
+      : `<input id="ask${i}" value="${esc(x.d)}">`)).join('');
     modal.classList.add('on');
     setTimeout(() => { const f = box.querySelector('input'); if (f) { f.focus(); f.select(); } }, 50);
     const done = (answers) => { modal.classList.remove('on'); form.onsubmit = null; cancel.onclick = null; resolve(answers); };
@@ -1181,6 +1587,7 @@ document.addEventListener('click', async (e) => {
     if (innerWidth <= 900) frame.scrollIntoView({ behavior: 'smooth', block: 'center' });
     const queue = answers.slice();
     frame.contentWindow.prompt = (q, d) => (queue.length ? queue.shift() : d);
+    frame.contentWindow.__qaAsk = (qs) => askUser(qs);
     const res = await runInDemo(code);
     render(res, box);
   } catch (err) {
@@ -1216,45 +1623,73 @@ document.getElementById('getExt').addEventListener('click', async () => {
   }
 });
 
-/* ---------- השיחה, הודעה אחרי הודעה ---------- */
-const msgs = [...document.querySelectorAll('#chat .msg')];
-const typing = document.getElementById('typing');
-const ctr = document.getElementById('ctr');
-let shown = 1, busy = false;
-function updateCtr() { ctr.textContent = shown + ' / ' + msgs.length; document.getElementById('nextMsg').disabled = shown >= msgs.length; }
-async function next() {
-  if (busy || shown >= msgs.length) return false;
-  const m = msgs[shown];
-  busy = true;
-  if (m.classList.contains('ai')) {
-    m.before(typing);
-    typing.classList.add('on');
-    typing.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    await new Promise((r) => setTimeout(r, 750));
-    typing.classList.remove('on');
-  }
-  m.classList.remove('later');
-  m.classList.add('pop');
-  m.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  shown++;
-  busy = false;
-  updateCtr();
-  return true;
-}
-function showAll() { msgs.forEach((m) => m.classList.remove('later')); shown = msgs.length; updateCtr(); }
-function restart() { msgs.forEach((m, i) => { if (i > 0) m.classList.add('later'); }); shown = 1; updateCtr(); document.getElementById('story').scrollIntoView({ behavior: 'smooth' }); }
-document.getElementById('nextMsg').addEventListener('click', next);
-document.getElementById('allMsg').addEventListener('click', showAll);
-document.getElementById('resetMsg').addEventListener('click', restart);
-document.addEventListener('keydown', (e) => {
-  if (!['ArrowLeft', 'PageDown', ' '].includes(e.key) || shown >= msgs.length) return;
-  if (e.target.closest('input, textarea, button, summary, a')) return;
-  const r = document.querySelector('.chatwin').getBoundingClientRect();
-  if (r.bottom < 80 || r.top > innerHeight - 80) return;
-  e.preventDefault();
-  next();
+/* ---------- שיחות, הודעה אחרי הודעה (כל חלון צ'אט בנפרד) ---------- */
+const chats = [...document.querySelectorAll('.chatwin')].map((win) => {
+  const msgs = [...win.querySelectorAll('.chat .msg')];
+  const typing = win.querySelector('.typing');
+  const ctr = win.querySelector('.ctr');
+  const nextBtn = win.querySelector('.c-next');
+  const st = { win, shown: 1, busy: false, total: msgs.length };
+  const update = () => { ctr.textContent = st.shown + ' / ' + msgs.length; nextBtn.disabled = st.shown >= msgs.length; };
+  st.next = async () => {
+    if (st.busy || st.shown >= msgs.length) return;
+    const m = msgs[st.shown];
+    st.busy = true;
+    if (m.classList.contains('ai')) {
+      m.before(typing);
+      typing.classList.add('on');
+      typing.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      await new Promise((r) => setTimeout(r, 750));
+      typing.classList.remove('on');
+    }
+    m.classList.remove('later');
+    m.classList.add('pop');
+    m.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    st.shown++;
+    st.busy = false;
+    update();
+  };
+  nextBtn.addEventListener('click', st.next);
+  win.querySelector('.c-all').addEventListener('click', () => { msgs.forEach((m) => m.classList.remove('later')); st.shown = msgs.length; update(); });
+  win.querySelector('.c-reset').addEventListener('click', () => { msgs.forEach((m, i) => { if (i > 0) m.classList.add('later'); }); st.shown = 1; update(); win.scrollIntoView({ behavior: 'smooth' }); });
+  update();
+  return st;
 });
-updateCtr();
+document.addEventListener('keydown', (e) => {
+  if (!['ArrowLeft', 'PageDown', ' '].includes(e.key)) return;
+  if (e.target.closest('input, textarea, select, button, summary, a')) return;
+  const c = chats.find((st) => { const r = st.win.getBoundingClientRect(); return r.bottom > 80 && r.top < innerHeight - 80 && st.shown < st.total; });
+  if (!c) return;
+  e.preventDefault();
+  c.next();
+});
+
+/* ---------- הורדת קובץ (באתר המפורסם דרך יכולת ההורדה, מקומית כקישור רגיל) ---------- */
+async function saveText(filename, text, btn) {
+  try {
+    if (window.claude && typeof window.claude.use === 'function') {
+      const downloads = await window.claude.use('downloads');
+      if (!downloads) throw new Error('ההורדה לא זמינה כאן');
+      await downloads.save({ filename, data: text });
+    } else {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([text], { type: 'text/markdown;charset=utf-8' }));
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+    btn.textContent = '✓ ירד';
+  } catch (err) {
+    btn.textContent = err && err.code === 'declined' ? 'בוטל' : 'לא הצליח';
+  }
+  setTimeout(() => { btn.textContent = '⬇ הורדה'; }, 2000);
+}
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-dl]');
+  if (!b) return;
+  saveText(b.dataset.dl, document.getElementById(b.dataset.src).textContent, b);
+});
 </script>
 </body>
 </html>
