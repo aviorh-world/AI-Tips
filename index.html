@@ -1388,6 +1388,202 @@ javascript:void(document.querySelector('[name="address"]').value="Jerusalem hana
   return rows;
 })()
 </script>
+<script type="text/plain" id="code-gaps">
+/* gaps.js — סריקת טופס מתוך הקונסול: מה ידוע, מה משוער, ועל מה צריך לשאול.
+ * שימוש: הדביקו בקונסול (F12) בעמוד הטופס ולחצו Enter.
+ * לא שולח טפסים, לא לוחץ על כפתורים ולא מפעיל אירועים.
+ * בדיקות החקר מציבות ערך זמני בשדה, בודקות checkValidity() ומחזירות את הערך המקורי.
+ *
+ * סיווג לכל שדה:
+ *   Discovered — כלל שמופיע במאפייני השדה (HTML)
+ *   Inferred   — ניחוש לפי שם השדה או הכותרת, לא מחייב
+ *   Unknown    — אין כלל ואין רמז
+ *   Confirmed  — אישרת בתשאול שההתנהגות רצויה
+ *   Suspect    — אמרת שההתנהגות שנצפתה לא רצויה (באג חשוד)
+ */
+(async function () {
+  const HINTS = [
+    { re: /טלפון|phone|tel|נייד/i, note: 'מספר טלפון' },
+    { re: /דוא"?ל|email|e-mail|מייל/i, note: 'כתובת אימייל' },
+    { re: /גיל|age/i, note: 'טווח גילאים' },
+    { re: /תאריך|date|birth|לידה/i, note: 'תאריך' },
+    { re: /מיקוד|zip|postal/i, note: 'מיקוד (ספרות בלבד)' },
+    { re: /ת\.?ז|תעודת זהות|id.?number/i, note: 'מספר זהות' },
+  ];
+  const NUMERIC_HINT = /טלפון|phone|tel|מיקוד|zip|postal|ת\.?ז|תעודת זהות|גיל|age/i;
+
+  // תווית נגישה אמיתית (label או aria). placeholder לא נחשב תווית.
+  function accessibleName(el) {
+    if (el.labels && el.labels.length) return el.labels[0].innerText.replace(/\*/g, '').replace(/\s+/g, ' ').trim();
+    if (el.getAttribute('aria-label')) return el.getAttribute('aria-label').trim();
+    const by = el.getAttribute('aria-labelledby');
+    if (by) { const n = document.getElementById(by); if (n) return n.innerText.trim(); }
+    return '';
+  }
+  function displayName(el) {
+    return accessibleName(el) || el.getAttribute('placeholder') || el.name || el.id || '(ללא שם)';
+  }
+  function selectorOf(el) {
+    if (el.id) return '#' + el.id;
+    if (el.name) return `[name="${el.name}"]`;
+    return el.tagName.toLowerCase();
+  }
+
+  function discovered(el) {
+    const r = [];
+    if (el.required) r.push('חובה');
+    if (el.hasAttribute('minlength')) r.push('אורך מינימום ' + el.getAttribute('minlength'));
+    if (el.hasAttribute('maxlength')) r.push('אורך מקסימום ' + el.getAttribute('maxlength'));
+    if (el.hasAttribute('min')) r.push('מינימום ' + el.getAttribute('min'));
+    if (el.hasAttribute('max')) r.push('מקסימום ' + el.getAttribute('max'));
+    if (el.hasAttribute('pattern')) r.push('תבנית ' + el.getAttribute('pattern'));
+    if (['email', 'number', 'date', 'tel', 'url'].includes(el.type)) r.push('סוג ' + el.type);
+    return r;
+  }
+  function hintsOf(el, name) {
+    const text = [name, el.name, el.id, el.getAttribute('placeholder')].join(' ');
+    return HINTS.filter((h) => h.re.test(text)).map((h) => h.note);
+  }
+
+  // בדיקת חקר: מציבים ערך, בודקים תקינות לפי הדפדפן, מחזירים את המקור.
+  function accepts(el, value) {
+    const orig = el.value;
+    let ok;
+    try {
+      el.value = value;
+      // שדה date/number שלא קיבל את הערך — נחשב דחייה
+      if (value !== '' && el.value === '') ok = false;
+      else ok = el.checkValidity();
+    } finally {
+      el.value = orig;
+    }
+    return ok;
+  }
+
+  function probe(el, name) {
+    if (el.type === 'checkbox' || el.type === 'radio' || el.tagName === 'SELECT') {
+      return { empty: !el.required };
+    }
+    const today = new Date();
+    const future = new Date(today.getFullYear() + 1, 0, 1).toISOString().slice(0, 10);
+    const res = {
+      empty: accepts(el, ''),
+      letters: accepts(el, 'abc'),
+      hebrew: accepts(el, 'אבג'),
+      special: accepts(el, '!@#$'),
+      spaces: accepts(el, '   '),
+      long100: accepts(el, '1'.repeat(100)),
+    };
+    if (el.type === 'date') res.future = accepts(el, future);
+    if (el.type === 'number') {
+      res.negative = accepts(el, '-1');
+      if (el.min) { res.belowMin = accepts(el, String(+el.min - 1)); res.atMin = accepts(el, el.min); }
+      if (el.max) { res.atMax = accepts(el, el.max); res.aboveMax = accepts(el, String(+el.max + 1)); }
+    }
+    return res;
+  }
+
+  // שאלות סגורות על מה שנצפה ולא מוגדר. "לא יודע" תמיד זמין.
+  function questionsFor(f) {
+    const q = [];
+    const add = (key, text) => q.push({ key, text, opts: ['כן, זה רצוי', 'לא, זה באג', 'לא יודע'] });
+    if (!f.accessibleName) add('noLabel', `לשדה "${f.field}" אין תווית נגישה (קורא מסך לא יקריא את שמו). זה תקין?`);
+    if (f.probe.empty && !f.rules.includes('חובה')) add('empty', `השדה "${f.field}" אינו חובה — אפשר להשאיר אותו ריק. זה רצוי?`);
+    if (f.probe.letters && NUMERIC_HINT.test(f.field + ' ' + f.selector)) add('letters', `השדה "${f.field}" מקבל אותיות (abc). זה רצוי?`);
+    if (f.probe.spaces && f.rules.includes('חובה')) add('spaces', `השדה "${f.field}" הוא חובה, אבל מקבל ערך של רווחים בלבד. זה רצוי?`);
+    if (f.probe.future) add('future', `השדה "${f.field}" מקבל תאריך עתידי. זה רצוי?`);
+    if (f.probe.long100 && !f.rules.some((r) => r.startsWith('אורך מקסימום')) && f.type !== 'number' && f.type !== 'date') {
+      add('long', `לשדה "${f.field}" אין מגבלת אורך (התקבלו 100 תווים). זה רצוי?`);
+    }
+    if (f.status === 'Unknown' && !q.length) add('unknown', `לשדה "${f.field}" אין כלל ולידציה. זה רצוי?`);
+    return q;
+  }
+
+  function scan() {
+    const out = [];
+    for (const el of document.querySelectorAll('input, select, textarea')) {
+      if (['hidden', 'submit', 'button', 'reset', 'image'].includes(el.type)) continue;
+      if (el.disabled || el.closest('[hidden]') || getComputedStyle(el).display === 'none') continue;
+      if (el.offsetParent === null && el.type !== 'checkbox') continue;
+      const acc = accessibleName(el);
+      const field = displayName(el);
+      const rules = discovered(el);
+      const hints = hintsOf(el, field);
+      out.push({
+        field, selector: selectorOf(el), type: el.type || el.tagName.toLowerCase(),
+        accessibleName: acc, rules, hints,
+        status: rules.length ? 'Discovered' : hints.length ? 'Inferred' : 'Unknown',
+        probe: probe(el, field),
+        answers: [],
+      });
+    }
+    return out;
+  }
+
+  const YES = 'כן, זה רצוי', NO = 'לא, זה באג', DK = 'לא יודע';
+  const HE = { Discovered: 'ידוע מהקוד', Inferred: 'משוער', Unknown: 'לא ידוע', Confirmed: 'אושר', Suspect: 'באג חשוד' };
+  function yn(v) { return v === undefined ? '—' : v ? 'מקבל' : 'דוחה'; }
+
+  // שואלים את כל השאלות. בדף ההרצאה: חלון שאלות אחד; בכל אתר אחר: prompt לכל שאלה.
+  async function askAll(list) {
+    if (typeof window.__qaAsk === 'function') {
+      return await window.__qaAsk(list.map((x) => ({ q: x.text, d: DK, options: x.opts })));
+    }
+    const out = [];
+    for (const x of list) {
+      const a = window.prompt(x.text + '\n' + x.opts.map((o, i) => `${i + 1}. ${o}`).join('\n') + '\n(ביטול = עצירה)', '3');
+      if (a === null) return out.length ? out : null;
+      const n = parseInt(a, 10);
+      out.push(n >= 1 && n <= x.opts.length ? x.opts[n - 1] : DK);
+    }
+    return out;
+  }
+
+  async function run({ interactive = true } = {}) {
+    const fields = scan();
+    const list = [];
+    fields.forEach((f) => questionsFor(f).forEach((q) => list.push({ ...q, f })));
+    let answers = [];
+    if (interactive && list.length) {
+      answers = (await askAll(list)) || [];
+      list.forEach((x, i) => { if (answers[i]) x.f.answers.push({ key: x.key, question: x.text, answer: answers[i] }); });
+      for (const f of fields) {
+        if (f.answers.some((a) => a.answer === NO)) f.status = 'Suspect';
+        else if (f.answers.length && f.answers.every((a) => a.answer === YES)) f.status = 'Confirmed';
+        // "לא יודע" משאיר את הסיווג: דרישה לא מאומתת
+      }
+    }
+
+    // שורה לכל שאלה, ושורה לכל שדה שהכללים שלו כבר ידועים מהקוד
+    const rows = [];
+    for (const f of fields) {
+      const qs = list.filter((x) => x.f === f);
+      if (!qs.length) {
+        rows.push({ 'שדה': f.field, 'סיווג': HE[f.status], 'מה נמצא': f.rules.join(', ') || '—', 'מה אמרת': '—', 'תוצאה': 'ידוע מהקוד' });
+        continue;
+      }
+      for (const x of qs) {
+        const a = f.answers.find((y) => y.key === x.key);
+        const said = a ? a.answer : '—';
+        const result = !a ? 'לא נשאל' : said === YES ? 'עבר' : said === NO ? 'נכשל' : 'שאלה פתוחה';
+        rows.push({ 'שדה': f.field, 'סיווג': HE[f.status], 'מה נמצא': x.text.replace(/ זה (רצוי|תקין)\?$/, ''), 'מה אמרת': said, 'תוצאה': result });
+      }
+    }
+    const count = (s) => fields.filter((f) => f.status === s).length;
+    console.log(`gaps: ${fields.length} שדות · Discovered ${count('Discovered')} · Inferred ${count('Inferred')} · Unknown ${count('Unknown')} · Confirmed ${count('Confirmed')} · Suspect ${count('Suspect')}`);
+    console.table(fields.map((f) => ({
+      שדה: f.field, סיווג: f.status, 'כללים בקוד': f.rules.join(' | ') || '—',
+      ריק: yn(f.probe.empty), אותיות: yn(f.probe.letters), 'רק רווחים': yn(f.probe.spaces), 'תאריך עתידי': yn(f.probe.future), '100 תווים': yn(f.probe.long100),
+    })));
+    window.__gaps = { url: location.href, at: new Date().toISOString(), fields, rows };
+    console.log('הדוח המלא ב-window.__gaps. להעתקה: copy(JSON.stringify(window.__gaps, null, 2))');
+    return rows;
+  }
+
+  window.__gapsRun = run;
+  return await run({ interactive: true });
+})()
+</script>
 <script>window.__DEMO_HTML__ = "<!doctype html>\n<html lang=\"he\" dir=\"rtl\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>מערכת בקשות מקוונת · סביבת בדיקות<\/title>\n<style>\n  * { box-sizing: border-box; }\n  [hidden] { display: none !important; }\n  body { margin: 0; font-family: system-ui, \"Segoe UI\", Arial, sans-serif; background: #eef1f6; color: #1d2330; }\n  .ribbon { background: repeating-linear-gradient(45deg, #ffcf3f, #ffcf3f 12px, #1d2330 12px, #1d2330 24px); height: 6px; }\n  .topbar { display: flex; align-items: center; gap: 12px; background: #fff; padding: 12px 20px; border-bottom: 1px solid #dde2ea; }\n  .logo { width: 34px; height: 34px; }\n  .title { font-size: 20px; font-weight: 800; }\n  .env { margin-right: auto; background: #1d2330; color: #ffcf3f; font-weight: 800; font-size: 12px; padding: 3px 10px; border-radius: 99px; }\n  .stepper { display: flex; gap: 8px; justify-content: center; margin: 18px 0 0; }\n  .stepper span { background: #fff; border: 1px solid #d5dbe5; color: #6b7385; padding: 5px 14px; border-radius: 99px; font-size: 14px; }\n  .stepper span.on { background: #2457d6; border-color: #2457d6; color: #fff; }\n  main { max-width: 640px; margin: 16px auto 30px; background: #fff; border-radius: 14px; box-shadow: 0 6px 24px #1d233014; padding: 22px 26px; }\n  h2 { margin: 0 0 14px; font-size: 21px; }\n  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }\n  .field label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 4px; }\n  .field input { width: 100%; padding: 9px 10px; border: 1px solid #c8cfdb; border-radius: 8px; font-size: 15px; font-family: inherit; }\n  .field input.invalid { border-color: #d63b3b; background: #fff5f5; }\n  .wide { grid-column: 1 / -1; }\n  .check { display: flex; gap: 8px; align-items: center; font-size: 14px; margin-top: 14px; }\n  .fine { font-size: 10px; color: #8a92a3; margin: 10px 0 0; }\n  .err { margin-top: 12px; background: #fde8e8; color: #9b1c1c; border-radius: 8px; padding: 9px 12px; font-size: 14px; }\n  .actions { display: flex; gap: 10px; align-items: center; margin-top: 18px; }\n  button { font-family: inherit; font-size: 15px; border-radius: 8px; padding: 9px 18px; cursor: pointer; border: 1px solid #c8cfdb; background: #fff; }\n  button.primary { background: #2457d6; border-color: #2457d6; color: #fff; font-weight: 700; }\n  button.narrow { width: 66px; padding: 9px 6px; overflow: hidden; white-space: nowrap; }\n  button.icon { width: 22px; height: 22px; padding: 2px; margin-right: auto; display: grid; place-items: center; border: none; background: transparent; }\n  .toast { margin-top: 12px; font-size: 14px; color: #1e7b3a; }\n  .success { width: 64px; height: 64px; border-radius: 50%; background: #1e7b3a; color: #fff; font-size: 34px; display: grid; place-items: center; margin: 6px auto 14px; }\n  #step3 { text-align: center; }\n  footer { text-align: center; color: #8a92a3; font-size: 13px; padding-bottom: 24px; }\n  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }\n<\/style>\n<\/head>\n<body>\n<div class=\"ribbon\"><\/div>\n<div class=\"topbar\">\n  <img src=\"assets/logo.png\" class=\"logo\">\n  <div class=\"title\">מערכת בקשות מקוונת<\/div>\n  <span class=\"env\">TEST<\/span>\n<\/div>\n\n<div class=\"stepper\" id=\"stepper\">\n  <span class=\"on\">1 · פרטים<\/span><span>2 · אימות<\/span><span>3 · סיום<\/span>\n<\/div>\n\n<main>\n  <section id=\"step1\">\n    <h2>פרטים אישיים<\/h2>\n    <form id=\"form1\" novalidate>\n      <div class=\"grid\">\n        <div class=\"field\"><label for=\"firstName\">שם פרטי *<\/label><input id=\"firstName\" name=\"firstName\" required><\/div>\n        <div class=\"field\"><label for=\"lastName\">שם משפחה *<\/label><input id=\"lastName\" name=\"lastName\" required maxlength=\"30\"><\/div>\n        <div class=\"field wide\"><label for=\"address\">כתובת<\/label><input id=\"address\" name=\"address\"><\/div>\n        <div class=\"field\"><label for=\"email\">מייל<\/label><input id=\"email\" name=\"email\" type=\"email\"><\/div>\n        <div class=\"field\"><label for=\"age\">גיל<\/label><input id=\"age\" name=\"age\" type=\"number\" min=\"18\" max=\"120\"><\/div>\n        <div class=\"field\"><label for=\"birthDate\">תאריך לידה<\/label><input id=\"birthDate\" name=\"birthDate\" type=\"date\"><\/div>\n        <div class=\"field\"><label for=\"phone\">טלפון<\/label><input id=\"phone\" name=\"phone\" type=\"tel\" pattern=\"0\\d{8,9}\"><\/div>\n        <div class=\"field\"><input id=\"zip\" name=\"zip\" placeholder=\"מיקוד\"><\/div>\n      <\/div>\n      <label class=\"check\"><input type=\"checkbox\" id=\"terms\" name=\"terms\" required> אני מאשר/ת את <a href=\"#\">תנאי השימוש<\/a><\/label>\n      <p class=\"fine\">* שדות חובה<\/p>\n      <div class=\"err\" role=\"alert\" id=\"err1\" hidden><\/div>\n      <div class=\"actions\">\n        <button type=\"submit\" class=\"primary\">הבא<\/button>\n        <button type=\"button\" class=\"narrow\" id=\"saveDraft\">שמור כטיוטה<\/button>\n        <button type=\"button\" class=\"icon\" id=\"delDraft\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#9b1c1c\" stroke-width=\"2\"><path d=\"M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14\"/><\/svg><\/button>\n      <\/div>\n      <div class=\"toast\" id=\"toast1\" hidden><\/div>\n    <\/form>\n  <\/section>\n\n  <section id=\"step2\" hidden>\n    <h2>אימות SMS<\/h2>\n    <p>שלחנו קוד בן 6 ספרות לטלפון שהזנת.<\/p>\n    <form id=\"form2\" novalidate>\n      <div class=\"field\"><label for=\"smsCode\">קוד אימות<\/label><input id=\"smsCode\" name=\"smsCode\" inputmode=\"numeric\" maxlength=\"6\" required pattern=\"\\d{6}\"><\/div>\n      <p class=\"fine\">בסביבת הבדיקות הקוד הוא 123456<\/p>\n      <div class=\"err\" role=\"alert\" id=\"err2\" hidden><\/div>\n      <div class=\"actions\">\n        <button type=\"submit\" class=\"primary\">אמת<\/button>\n        <button type=\"button\" id=\"resend\">שלח שוב קוד<\/button>\n        <button type=\"button\" id=\"back\">חזור<\/button>\n      <\/div>\n      <div class=\"toast\" id=\"toast2\" hidden><\/div>\n    <\/form>\n  <\/section>\n\n  <section id=\"step3\" hidden>\n    <div class=\"success\">✓<\/div>\n    <h2>הבקשה נקלטה בהצלחה<\/h2>\n    <p>מספר אסמכתא: <b id=\"ref\">QA-2026-0042<\/b><\/p>\n  <\/section>\n<\/main>\n\n<footer>סביבת בדיקות · כל הנתונים בדף הם נתוני דמו<\/footer>\n\n<script>\n/* ===== שרת מדומה: כל קריאה ל-/api/ נענית מכאן, בלי שרת אמיתי ===== */\n(() => {\n  const realFetch = window.fetch.bind(window);\n  const json = (obj, status = 200) => ({ body: JSON.stringify(obj), status, type: 'application/json' });\n  const LOGS = [\n    '2026-11-19 07:41:02.114 INFO  [gateway]       corr=a1f3 GET /api/health 200 118ms',\n    '2026-11-19 07:41:03.520 INFO  [auth-service]  corr=b7c0 token issued user=1001',\n    '2026-11-19 07:41:05.002 INFO  [gateway]       corr=c2d9 GET /api/user/me 200 176ms',\n    '2026-11-19 07:41:08.931 WARN  [auth-service]  corr=b7c0 token expires in 120s',\n    '2026-11-19 07:41:11.407 INFO  [gateway]       corr=d4e1 GET /api/cities 200 1402ms',\n    '2026-11-19 07:41:11.409 WARN  [cities-service] corr=d4e1 slow query 1390ms (limit 1000ms)',\n    '2026-11-19 07:41:12.230 ERROR [orders-service] corr=c7f2 DB timeout after 3000ms (pool exhausted)',\n    '2026-11-19 07:41:12.231 ERROR [gateway]       corr=c7f2 GET /api/orders 500 3004ms',\n    '2026-11-19 07:41:12.240 ERROR [orders-service] corr=c7f2 retry 1 failed: DB timeout',\n    '2026-11-19 07:41:14.118 INFO  [gateway]       corr=e9a0 POST /api/applications 201 212ms',\n    '2026-11-19 07:41:15.877 INFO  [sms-service]   corr=e9a0 code sent to 05*******67',\n    '2026-11-19 07:41:19.302 ERROR [orders-service] corr=f013 DB timeout after 3000ms (pool exhausted)',\n    '2026-11-19 07:41:19.305 ERROR [gateway]       corr=f013 GET /api/orders 500 3007ms',\n    '2026-11-19 07:41:21.660 INFO  [sms-service]   corr=e9a0 code verified',\n    '2026-11-19 07:41:22.014 WARN  [orders-service] corr=-    connection pool at 100% (20/20)',\n    '2026-11-19 07:41:25.440 ERROR [notify-service] corr=e9a0 email template \"approved\" not found',\n    '2026-11-19 07:41:26.001 INFO  [gateway]       corr=a8b2 GET /api/health 200 121ms',\n    '2026-11-19 07:41:29.774 ERROR [orders-service] corr=a9d6 DB timeout after 3000ms (pool exhausted)',\n    '2026-11-19 07:41:29.776 ERROR [gateway]       corr=a9d6 GET /api/orders 500 3002ms',\n    '2026-11-19 07:41:31.090 INFO  [gateway]       corr=b0c1 GET /api/user/me 200 181ms'\n  ].join('\\n');\n  const SPEC = {\n    openapi: '3.0.0',\n    info: { title: 'מערכת בקשות · API לבדיקות', version: '1.4.0' },\n    servers: [{ url: '' }],\n    paths: {\n      '/api/health': { get: { summary: 'בדיקת חיים' } },\n      '/api/user/me': { get: { summary: 'המשתמש המחובר' } },\n      '/api/user/{id}': { get: { summary: 'משתמש לפי מזהה' } },\n      '/api/cities': { get: { summary: 'רשימת ערים' } },\n      '/api/orders': { get: { summary: 'הזמנות' } },\n      '/api/applications': { post: { summary: 'יצירת בקשה' } },\n      '/api/sms/verify': { post: { summary: 'אימות קוד SMS' } }\n    }\n  };\n  const routes = {\n    'GET openapi.json': () => [json(SPEC), 60],\n    'GET health': () => [json({ status: 'UP' }), 120],\n    'GET user/me': () => [json({ id: 1001, name: 'ישראל בדיקה' }), 180],\n    'GET cities': () => [json(['ירושלים', 'תל אביב', 'חיפה', 'באר שבע']), 1400],\n    'GET orders': () => [json({ error: 'Internal Server Error', corr: 'c7f2' }, 500), 300],\n    'GET logs': () => [{ body: LOGS, status: 200, type: 'text/plain' }, 90],\n    'POST applications': () => [json({ id: 'APP-0042' }, 201), 200],\n    'POST sms/verify': (body) => {\n      let code = '';\n      try { code = JSON.parse(body || '{}').code; } catch (e) { /* גוף לא תקין */ }\n      return [code === '123456' ? json({ ok: true }) : json({ ok: false, error: 'קוד שגוי' }, 400), 250];\n    }\n  };\n  window.fetch = async (input, init = {}) => {\n    const url = new URL(typeof input === 'string' ? input : input.url, document.baseURI);\n    const i = url.pathname.indexOf('/api/');\n    if (i === -1) return realFetch(input, init);\n    const method = (init.method || 'GET').toUpperCase();\n    const key = method + ' ' + url.pathname.slice(i + 5);\n    const handler = routes[key];\n    const [res, delay] = handler ? handler(init.body) : [json({ error: 'Not Found' }, 404), 50];\n    await new Promise((r) => setTimeout(r, delay));\n    return new Response(res.body, { status: res.status, headers: { 'Content-Type': res.type } });\n  };\n})();\n\n/* ===== התנהגות הטופס ===== */\nconst $ = (s) => document.querySelector(s);\nconst stepper = [...document.querySelectorAll('#stepper span')];\n\nfunction goTo(n) {\n  ['#step1', '#step2', '#step3'].forEach((s, i) => { $(s).hidden = i !== n - 1; });\n  stepper.forEach((s, i) => s.classList.toggle('on', i === n - 1));\n}\n\nfunction validate(form, errBox) {\n  const bad = [...form.elements].filter((el) => el.willValidate && !el.checkValidity());\n  [...form.elements].forEach((el) => el.classList && el.classList.toggle('invalid', bad.includes(el)));\n  errBox.hidden = bad.length === 0;\n  errBox.textContent = bad.length ? 'יש לתקן ' + bad.length + ' שדות לפני שממשיכים' : '';\n  return bad.length === 0;\n}\n\n$('#form1').addEventListener('submit', async (e) => {\n  e.preventDefault();\n  if (!validate(e.target, $('#err1'))) return;\n  await fetch('/api/applications', { method: 'POST', body: JSON.stringify({ name: $('#firstName').value }) });\n  goTo(2);\n  $('#smsCode').focus();\n});\n\n$('#saveDraft').addEventListener('click', () => {\n  $('#toast1').hidden = false;\n  $('#toast1').textContent = 'הטיוטה נשמרה ✓';\n});\n\n$('#delDraft').addEventListener('click', () => {\n  $('#form1').reset();\n  $('#toast1').hidden = false;\n  $('#toast1').textContent = 'הטיוטה נמחקה';\n});\n\n$('#form2').addEventListener('submit', async (e) => {\n  e.preventDefault();\n  if (!validate(e.target, $('#err2'))) return;\n  const r = await fetch('/api/sms/verify', { method: 'POST', body: JSON.stringify({ code: $('#smsCode').value }) });\n  if (!r.ok) {\n    $('#err2').hidden = false;\n    $('#err2').textContent = 'הקוד שגוי, נסו שוב';\n    return;\n  }\n  goTo(3);\n});\n\n$('#resend').addEventListener('click', () => {\n  $('#toast2').hidden = false;\n  $('#toast2').textContent = 'קוד חדש נשלח ✓';\n});\n\n/* באג מתוכנן: הכפתור \"חזור\" מחפש אלמנט שלא קיים */\n$('#back').addEventListener('click', () => {\n  document.querySelector('#stepper .current').classList.remove('on');\n  goTo(1);\n});\n\n/* תקלות \"רקע\" מתוכננות, כדי שיהיה מה למצוא בלוגים וברשת */\nconsole.error('[analytics] init failed: missing config key \"trackingId\"');\nfetch('config/runtime.json').catch(() => console.warn('[config] runtime.json not found, using defaults'));\n<\/script>\n<\/body>\n<\/html>\n";</script>
 
 <script>
@@ -1444,7 +1640,11 @@ const TOOLS = [
   { id: 'speccheck', icon: '📄', title: 'בדיקה מול האפיון', tag: 'הכל', reset: true,
     desc: 'הסקריפט מהשיחה השנייה. ה-AI כתב אותו מתוך האפיון: 17 בדיקות, וכל שורה בתוצאה מפנה לסעיף באפיון שהיא בודקת. בלי AI בזמן ההרצה.',
     demo: '11 עוברות ו-6 נכשלות. ארבעה מהבאגים אי אפשר למצוא בלי האפיון.',
-    ask: 'הנה האפיון [מעלה]. כתוב סקריפט שבודק את הדף מול כל כלל באפיון, ושכל שורה בתוצאה תפנה לסעיף שלה.' }
+    ask: 'הנה האפיון [מעלה]. כתוב סקריפט שבודק את הדף מול כל כלל באפיון, ושכל שורה בתוצאה תפנה לסעיף שלה.' },
+  { id: 'gaps', icon: '🔎', title: 'מה ידוע ומה חסר (בלי אפיון)', tag: 'הכל', reset: true,
+    desc: 'אין אפיון? הסקריפט קודם בודק לבד מה כל שדה מקבל (ריק, אותיות, רק רווחים, תאריך עתידי, 100 תווים), ואז שואל אותך רק על מה שמצא ולא מוגדר בקוד: "זה רצוי?". כל שדה מקבל סיווג: ידוע מהקוד, משוער לפי השם, לא ידוע, אושר, או באג חשוד. "לא יודע" נשאר דרישה לא מאומתת, לא באג.',
+    demo: 'ענו "לא, זה באג" על המיקוד ועל התאריך העתידי. שימו לב גם לשם הפרטי: שדה חובה שמקבל רק רווחים.',
+    ask: 'אין לי אפיון. כתוב סקריפט שבודק מה כל שדה בטופס מקבל בפועל, מסווג כל כלל (ידוע מהקוד / משוער / לא ידוע), ושואל אותי רק על מה שלא מוגדר, בשאלות סגורות עם "לא יודע".' }
 ];
 
 const codeOf = (id) => (document.getElementById('code-' + id) || { textContent: '' }).textContent.trim();
